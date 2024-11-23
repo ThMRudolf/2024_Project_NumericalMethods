@@ -1,0 +1,26 @@
+name: BayesianOptimization
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - scikit-learn
+  - scikit-optimize
+  - GPy
+  - GPyOpt
+  - xgboost
+  - pandas
+  - numpy
+  - pytest
+  - ipython
+  - jupyterlab
+  - matplotlib
+  - seaborn
+  - plotly
+  - ipyleaflet
+  - pylint
+  - autopep8
+  - joblib
+  - lxml
+  - boto3
+  - awswrangler
