@@ -10,7 +10,7 @@ Repositorio para una proyecto final de la materia de Métodos Numericos y Optimi
 | Yuneri Pérez Arellano         | 199813 | yperezar@itam.mx               | YunPerez       |
 | Thomas Rudolf         | 169296| xxxxx@itam.mx               | ThMRudolf      |
 | Blanca E. García Manjarrez | 118886 | bgarci11@itam.mx   |    BGARCIAMA   |
-| Sofia Gerard | XXXXXX | xxxxxxx@itam.mx   |    sofiagerard   |
+| Sofia Gerard | 149721 | sgerardr@itam.mx   |    sofiagerard   |
 
 
 # Contexto  🧠
