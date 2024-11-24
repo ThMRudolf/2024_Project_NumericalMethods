@@ -8,7 +8,7 @@ Repositorio para una proyecto final de la materia de Métodos Numericos y Optimi
 | Nombre                        |  CU    | Correo Electrónico             | Usuario Github |
 |-------------------------------|--------|--------------------------------|----------------|
 | Yuneri Pérez Arellano         | 199813 | yperezar@itam.mx               | YunPerez       |
-| Thomas Rudolf         | XXXXXX | xxxxx@itam.mx               | ThMRudolf      |
+| Thomas Rudolf         | 169296| xxxxx@itam.mx               | ThMRudolf      |
 | Blanca E. García Manjarrez | 118886 | bgarci11@itam.mx   |    BGARCIAMA   |
 | Sofia Gerard | XXXXXX | xxxxxxx@itam.mx   |    sofiagerard   |
 
@@ -38,7 +38,7 @@ Se empleo el [conjunto de datos de diabetes de sklearn](https://scikit-learn.org
 2. [VSCodeIDE](https://code.visualstudio.com/)
 
 Para ejecutar este producto de datos se necesita lo siguiente:
-- Sistema operativo Linux/Mac.
+- Sistema operativo Linux/Mac/Windows.
 - Clonar el repositorio en el equipo.
 - Activar el entorno virtual, corriendo la siguiente línea de comando en la terminal:
   ```bash
