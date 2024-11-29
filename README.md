@@ -42,7 +42,7 @@ Para ejecutar este producto de datos se necesita lo siguiente:
 - Clonar el repositorio en el equipo.
 - Activar el entorno virtual, corriendo la siguiente línea de comando en la terminal:
   ```bash
-  conda env create --file environment.yml
+  conda env create --file environment.yml / environment_tf.yml (para activar tensorflow)
   conda activate BayesianOptimization
   ```
 - Correr los scripts en el siguiente orden:
