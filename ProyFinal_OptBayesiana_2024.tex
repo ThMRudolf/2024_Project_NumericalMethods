@@ -629,7 +629,7 @@ muestras ruidosas extraídas de la función objetivo.
 
 \includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-9-output-1.pdf}
 
-\subsection{GPyOpt}\label{gpyopt}
+\subsubsection{GPyOpt}\label{gpyopt}
 
 \href{http://sheffieldml.github.io/GPyOpt/}{GPyOpt} es una biblioteca de
 optimización bayesiana basada en
@@ -656,16 +656,163 @@ Automático}\label{aplicaciuxf3n-de-optimizaciuxf3n-bayesiana-en-aprendizaje-aut
 
 \subsubsection{Diabetes}\label{diabetes}
 
-En esta sección demostraremos cómo optimizar los hiperparámetros de un
-\texttt{XGBRegressor} con GPyOpt y cómo se compara el rendimiento de la
-optimización bayesiana con la búsqueda aleatoria. \texttt{XGBRegressor}
-es parte de \href{https://xgboost.readthedocs.io/}{XGBoost}, una
-biblioteca de aumento de gradiente flexible y escalable.
-\texttt{XGBRegressor} implementa la API de estimador de scikit-learn y
-se puede aplicar a problemas de regresión. La regresión se realiza en un
-pequeño
+En esta sección, aplicaremos la optimización bayesiana a un problema de
+regresión. La regresión se realiza en un pequeño
 \href{http://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_diabetes.html\#sklearn.datasets.load_diabetes}{conjunto
-de datos de ejemplo} que es parte de scikit-learn.
+de datos sobre diabetes} que es parte de scikit-learn.
+
+El conjunto de datos, contiene 10 variables basales como son: edad,
+sexo, índice de masa corporal, presión arterial media y 6 mediciones de
+suero sanguíneo para cada uno de los 442 pacientes diabéticos, así como
+la respuesta del paciente, una medida cuantitativa de la progresión de
+la enfermedad, un año después de la toma inicial.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.4211}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5789}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Atributo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Descripción
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+age & age in years \\
+sex & sex \\
+bmi & body mass index \\
+bp & average blood pressure \\
+s1 tc & total serum cholesterol \\
+s2 ldl & low-density lipoproteins \\
+s3 hdl & high-density lipoproteins \\
+s4 tch & total cholesterol / HDL \\
+s5 ltg & possibly log of serum triglycerides level \\
+s6 glu & blood sugar level \\
+y & quantitative measure of disease progression one year after
+baseline \\
+\end{longtable}
+
+\includegraphics{imgs/data_diabetes.png} Fuente
+\href{https://web.stanford.edu/~hastie/Papers/LARS/LeastAngle_2002.pdf}{Diabetes
+Study}
+
+\textbf{1. Definición del problema} El objetivo, es predecir la
+progresión de la enfermedad un año después del estudio, basándose en
+múltiples características explicativas proporcionadas en el conjunto de
+datos, utilizando un \texttt{XGBRegressor} con optimización bayesiana
+para la búsqueda de hiperparámetros. En esta sección demostraremos cómo
+optimizar los hiperparámetros de un \texttt{XGBRegressor} con GPyOpt y
+skopt y cómo se compara el rendimiento de la optimización bayesiana
+\texttt{BayesianOptimization} con la búsqueda aleatoria
+\texttt{RandomSearch}.
+
+Matemáticamente, esto se modela como:
+
+\[
+Y = f(X; \Theta) + \epsilon
+\]
+
+Donde: - \(Y \in \mathbb{R}\) representa la variable objetivo (medida de
+progreso de la enfermedad). - \(X \in \mathbb{R}^{n \times d}\) es la
+matriz de entrada con \(n\) muestras y \(d\) características. -
+\(\Theta\) representa los hiperparámetros del modelo que afectan su
+capacidad de generalización. - \(\epsilon\) es un término de error
+(ruido) que modela incertidumbre o variabilidad no explicada por
+\(f(X; \Theta)\).
+
+El modelo objetivo \(f(X; \Theta)\) es un \texttt{XGBRegressor} (modelo
+de boosting basado en árboles) que tiene múltiples hiperparámetros a
+optimizar.
+
+\textbf{2. Función objetivo para la optimización}
+
+El problema de ajuste de hiperparámetros se puede expresar como un
+problema de minimización, donde se busca el conjunto de hiperparámetros
+\(\Theta^*\) que minimice el error cuadrático medio (MSE) en validación
+cruzada:
+
+\[
+\Theta^* = \underset{\Theta}{\text{argmin}} \, \frac{1}{k} \sum_{i=1}^{k} \left( \frac{1}{n_i} \sum_{j=1}^{n_i} \left( y_{ij} - \hat{y}_{ij}(\Theta) \right)^2 \right)
+\]
+
+Donde: - \(k\) es el número de pliegues en la validación cruzada. -
+\(n_i\) es el número de muestras en el pliegue \(i\). - \(y_{ij}\) es el
+valor real de la muestra \(j\) en el pliegue \(i\). -
+\(\hat{y}_{ij}(\Theta)\) es la predicción realizada por el modelo con
+hiperparámetros \(\Theta\).
+
+\textbf{3. Hiperparámetros optimizados}
+
+Los hiperparámetros ajustados (\(\Theta\)) incluyen: 1. \textbf{Tasa de
+aprendizaje (\(\eta\))}: Controla la contribución de cada árbol en el
+modelo final. - Rango: \([0.01, 1.0]\) 2. \textbf{Profundidad máxima de
+los árboles (\(d\))}: Controla la complejidad de los árboles. - Rango:
+\([1, 50]\) 3. \textbf{Número de estimadores (\(n_{\text{trees}}\))}:
+Número total de árboles en el modelo. - Rango: \([1, 300]\) 4.
+\textbf{Peso mínimo de las hojas (\(w_{\text{min}}\))}: Peso mínimo
+requerido para dividir un nodo. - Rango: \([1, 10]\) 5.
+\textbf{Parámetro \(\gamma\)}: Penalización por complejidad en la
+división de nodos. - Rango: \([0, 5]\)
+
+El espacio de búsqueda para los hiperparámetros es definido
+explícitamente en la optimización bayesiana.
+
+\textbf{4. Enfoque de optimización}
+
+Se utiliza la optimización bayesiana para encontrar \(\Theta^*\). Este
+enfoque construye un modelo probabilístico (Proceso Gaussiano) para
+aproximar la relación entre los hiperparámetros \(\Theta\) y la función
+objetivo (MSE). La técnica, guía la búsqueda hacia regiones prometedoras
+del espacio de hiperparámetros.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Modelo probabilístico}: El modelo probabilístico del MSE se
+  denota como: \[
+  f(\Theta) \sim \mathcal{GP}(\mu(\Theta), k(\Theta, \Theta'))
+  \] Donde:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(\mu(\Theta)\): Media predictiva del MSE.
+  \item
+    \(k(\Theta, \Theta')\): Función de covarianza que mide la similitud
+    entre puntos \(\Theta\) y \(\Theta'\).
+  \end{itemize}
+\item
+  \textbf{Función de adquisición}: La función de adquisición (Expected
+  Improvement, EI) guía la selección del próximo conjunto de
+  hiperparámetros a evaluar: \[
+  \text{EI}(\Theta) = \mathbb{E}\left[ \max(0, f(\Theta^*) - f(\Theta)) \right]
+  \] Donde:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(f(\Theta^*)\) es el mejor valor conocido de la función objetivo.
+  \item
+    \(f(\Theta)\) es el valor predicho por el modelo probabilístico.
+  \end{itemize}
+\item
+  \textbf{Actualización iterativa}: En cada iteración:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Se evalúa \(\text{EI}(\Theta)\) en el espacio de búsqueda.
+  \item
+    Se selecciona el conjunto de hiperparámetros
+    \(\Theta_{\text{next}}\) que maximiza \(\text{EI}(\Theta)\).
+  \item
+    Se entrena el modelo con \(\Theta_{\text{next}}\) y se actualiza el
+    modelo probabilístico.
+  \end{itemize}
+\end{enumerate}
 
 \paragraph{Ajuste de hiperparámetros con búsqueda
 aleatoria}\label{ajuste-de-hiperparuxe1metros-con-buxfasqueda-aleatoria}
@@ -673,7 +820,7 @@ aleatoria}\label{ajuste-de-hiperparuxe1metros-con-buxfasqueda-aleatoria}
 Para el ajuste de hiperparámetros con búsqueda aleatoria, utilizamos
 \texttt{RandomSearchCV} de scikit-learn y calculamos una puntuación de
 validación cruzada para cada punto seleccionado aleatoriamente en el
-espacio de hiperparámetros. Los resultados se analizarán a continuación:
+espacio de hiperparámetros.
 
 \paragraph{Ajuste de hiperparámetros con optimización
 bayesiana}\label{ajuste-de-hiperparuxe1metros-con-optimizaciuxf3n-bayesiana}
@@ -727,7 +874,7 @@ sujeta a investigación.
 \bottomrule\noalign{}
 \endlastfoot
 0 & Baseline & 4000.175 \\
-1 & Random Search & -3893.185 \\
+1 & Random Search & -3381.370 \\
 2 & Bayesian Optimization (skopt) & -3196.807 \\
 3 & Bayesian Optimization (GPyOpt) & -3145.947 \\
 \end{longtable}
@@ -746,39 +893,54 @@ las viviendas en función de las características proporcionadas.
 \paragraph{Ajuste de hiperparámetros con búsqueda
 aleatoria}\label{ajuste-de-hiperparuxe1metros-con-buxfasqueda-aleatoria-1}
 
+Para el ajuste de hiperparámetros con búsqueda aleatoria, utilizamos
+\texttt{RandomSearchCV} de scikit-learn y calculamos una puntuación de
+validación cruzada para cada punto seleccionado aleatoriamente en el
+espacio de hiperparámetros. El modelo utilizado fue
+\texttt{GradientBoostingRegressor} de scikit-learn.
+
 \paragraph{Ajuste de hiperparámetros con optimización
 bayesiana}\label{ajuste-de-hiperparuxe1metros-con-optimizaciuxf3n-bayesiana-1}
 
-\begin{verbatim}
-Mejores hiperparámetros encontrados:
-Learning rate: 0.45425
-Max features: 7
-Max depth: 4
-Min samples split: 202
-Min samples leaf: 486
-Mejor MSE (negativo): 0.4231
-\end{verbatim}
+Para ajustar los hiperparámetros con optimización bayesiana,
+implementamos una función objetivo \texttt{cv\_score} que toma los
+hiperparámetros como entrada y devuelve una puntuación de validación
+cruzada. El modelo, empleado fue \texttt{GradientBoostingRegressor} de
+scikit-learn.
 
 \begin{verbatim}
 Baseline neg. MSE = 0.45815
-Random search neg. MSE = 0.41898
-Bayesian optimization GPyOpt neg. MSE = 0.42307
+Random search neg. MSE = 0.44542
+Bayesian optimization GPyOpt neg. MSE = 0.38734
 \end{verbatim}
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-22-output-2.pdf}
+\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-23-output-1.pdf}
 
-\begin{verbatim}
-Baseline neg. MSE = 0.45815
-Best parameters from Bayesian optimization (skopt):
-{'learning_rate': 0.41620117850866056, 'max_features': 8, 'max_depth': 5, 'min_samples_split': 2, 'min_samples_leaf': 1000}
-Best neg. MSE from skopt: 0.41997
+\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-24-output-1.pdf}
 
-Best parameters from RandomizedSearchCV:
-{'learning_rate': 0.5318483217500717, 'max_depth': 5, 'max_features': 8, 'min_samples_leaf': 676, 'min_samples_split': 512}
-Best neg. MSE from RandomizedSearchCV: 0.41815
-\end{verbatim}
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+& Method & Neg. MSE \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & Baseline & 0.45815 \\
+1 & Random Search & 0.44542 \\
+2 & Bayesian Optimization (skopt) & 0.41997 \\
+3 & Bayesian Optimization (GPyOpt) & 0.38734 \\
+\end{longtable}
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-23-output-2.pdf}
+\section{Fuentes}\label{fuentes}
+
+\begin{itemize}
+\tightlist
+\item
+  {[}\#{]} Bradley Efron, Trevor Hastie, Iain Johnstone and Robert
+  Tibshirani (2004) ``Least Angle Regression,'' Annals of Statistics
+  (with discussion), 407-499.
+  (https://web.stanford.edu/\textasciitilde hastie/Papers/LARS/LeastAngle\_2002.pdf)
+\end{itemize}
 
 
 
