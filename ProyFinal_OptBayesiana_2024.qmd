@@ -256,7 +256,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #%matplotlib inline
-np.random.seed(1234)
+np.random.seed(42)
 bounds = np.array([[-1.0, 2.0]])
 noise = 0.2
 
@@ -274,7 +274,7 @@ La siguiente gráfica muestra:
 
 ```{python, echo=FALSE, mesaage=FALSE, warning=FALSE}
 # Dense grid of points within bounds
-np.random.seed(1234)
+np.random.seed(42)
 X = np.linspace(bounds[0, 0], bounds[0, 1], 300).reshape(-1, 1)
 
 # Noise-free objective function values at X 
@@ -477,7 +477,7 @@ plot_approximation(gpr, X, Y, r.x_iters, -r.func_vals, show_legend=True)
 plot_convergence(np.array(r.x_iters), -r.func_vals)
 ```
 
-## GPyOpt
+### GPyOpt
 
 [GPyOpt](http://sheffieldml.github.io/GPyOpt/) es una biblioteca de optimización bayesiana basada en [GPy](https://sheffieldml.github.io/GPy/). El nivel de abstracción de la API, es comparable al de scikit-optimize. 
 La API `BayesianOptimization` proporciona un parámetro `maximize` para configurar si la función objetivo se maximizará o minimizará (predeterminado). En la versión 1.2.1, esto parece ignorarse al proporcionar muestras iniciales, por lo que tenemos que negar sus valores objetivo manualmente en el siguiente ejemplo. Además, los métodos integrados `plot_acquisition` y `plot_convergence` muestran el resultado de la minimización en cualquier caso. Nuevamente, los resultados obtenidos aquí difieren ligeramente de los resultados anteriores debido al comportamiento de optimización no determinista y a las diferentes muestras ruidosas extraídas de la función objetivo.
@@ -489,7 +489,7 @@ import GPy
 from GPyOpt.methods import BayesianOptimization
 
 # Configuración inicial
-np.random.seed(1234)
+np.random.seed(42)
 bounds = np.array([[-1.0, 2.0]])
 noise = 0.2
 
@@ -555,7 +555,103 @@ optimizer.plot_convergence()
 
 ### Diabetes
 
-En esta sección demostraremos cómo optimizar los hiperparámetros de un `XGBRegressor` con GPyOpt y cómo se compara el rendimiento de la optimización bayesiana con la búsqueda aleatoria. `XGBRegressor` es parte de [XGBoost](https://xgboost.readthedocs.io/), una biblioteca de aumento de gradiente flexible y escalable. `XGBRegressor` implementa la API de estimador de scikit-learn y se puede aplicar a problemas de regresión. La regresión se realiza en un pequeño [conjunto de datos de ejemplo](http://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes) que es parte de scikit-learn.
+En esta sección, aplicaremos la optimización bayesiana a un problema de regresión. La regresión se realiza en un pequeño [conjunto de datos sobre diabetes](http://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_diabetes.html#sklearn.datasets.load_diabetes) que es parte de scikit-learn.
+
+El conjunto de datos, contiene 10 variables basales como son: edad, sexo, índice de masa corporal, presión arterial media y 6 mediciones de suero sanguíneo para cada uno de los 442 pacientes diabéticos, así como la respuesta del paciente, una medida cuantitativa de la progresión de la enfermedad, un año después de la toma inicial.
+
+|Atributo|Descripción|
+|--------|-----------|
+|age |age in years|
+|sex| sex|
+|bmi| body mass index|
+|bp| average blood pressure|
+|s1 tc| total serum cholesterol|
+|s2 ldl| low-density lipoproteins|
+|s3 hdl| high-density lipoproteins|
+|s4 tch| total cholesterol / HDL|
+|s5 ltg| possibly log of serum triglycerides level|
+|s6 glu| blood sugar level|
+| y| quantitative measure of disease progression one year after baseline|
+
+![Estudio de diabetes](imgs/data_diabetes.png)
+Fuente [Diabetes Study](https://web.stanford.edu/~hastie/Papers/LARS/LeastAngle_2002.pdf)
+
+**1. Definición del problema**
+El objetivo, es predecir la progresión de la enfermedad un año después del estudio, basándose en múltiples características explicativas proporcionadas en el conjunto de datos, utilizando un `XGBRegressor` con optimización bayesiana para la búsqueda de hiperparámetros.
+En esta sección demostraremos cómo optimizar los hiperparámetros de un `XGBRegressor` con GPyOpt y skopt y cómo se compara el rendimiento de la optimización bayesiana `BayesianOptimization` con la búsqueda aleatoria `RandomSearch`.
+
+Matemáticamente, esto se modela como:
+
+$$
+Y = f(X; \Theta) + \epsilon
+$$
+
+Donde:
+- $Y \in \mathbb{R}$ representa la variable objetivo (medida de progreso de la enfermedad).
+- $X \in \mathbb{R}^{n \times d}$ es la matriz de entrada con $n$ muestras y $d$ características.
+- $\Theta$ representa los hiperparámetros del modelo que afectan su capacidad de generalización.
+- $\epsilon$ es un término de error (ruido) que modela incertidumbre o variabilidad no explicada por $f(X; \Theta)$.
+
+El modelo objetivo $f(X; \Theta)$ es un `XGBRegressor` (modelo de boosting basado en árboles) que tiene múltiples hiperparámetros a optimizar.
+
+**2. Función objetivo para la optimización**
+
+El problema de ajuste de hiperparámetros se puede expresar como un problema de minimización, donde se busca el conjunto de hiperparámetros $\Theta^*$ que minimice el error cuadrático medio (MSE) en validación cruzada:
+
+$$
+\Theta^* = \underset{\Theta}{\text{argmin}} \, \frac{1}{k} \sum_{i=1}^{k} \left( \frac{1}{n_i} \sum_{j=1}^{n_i} \left( y_{ij} - \hat{y}_{ij}(\Theta) \right)^2 \right)
+$$
+
+Donde:
+- $k$ es el número de pliegues en la validación cruzada.
+- $n_i$ es el número de muestras en el pliegue $i$.
+- $y_{ij}$ es el valor real de la muestra $j$ en el pliegue $i$.
+- $\hat{y}_{ij}(\Theta)$ es la predicción realizada por el modelo con hiperparámetros $\Theta$.
+
+**3. Hiperparámetros optimizados**
+
+Los hiperparámetros ajustados ($\Theta$) incluyen:
+1. **Tasa de aprendizaje ($\eta$)**: Controla la contribución de cada árbol en el modelo final.
+   - Rango: $[0.01, 1.0]$
+2. **Profundidad máxima de los árboles ($d$)**: Controla la complejidad de los árboles.
+   - Rango: $[1, 50]$
+3. **Número de estimadores ($n_{\text{trees}}$)**: Número total de árboles en el modelo.
+   - Rango: $[1, 300]$
+4. **Peso mínimo de las hojas ($w_{\text{min}}$)**: Peso mínimo requerido para dividir un nodo.
+   - Rango: $[1, 10]$
+5. **Parámetro $\gamma$**: Penalización por complejidad en la división de nodos.
+   - Rango: $[0, 5]$
+
+El espacio de búsqueda para los hiperparámetros es definido explícitamente en la optimización bayesiana.
+
+**4. Enfoque de optimización**
+
+Se utiliza la optimización bayesiana para encontrar $\Theta^*$. Este enfoque construye un modelo probabilístico (Proceso Gaussiano) para aproximar la relación entre los hiperparámetros $\Theta$ y la función objetivo (MSE). La técnica, guía la búsqueda hacia regiones prometedoras del espacio de hiperparámetros.
+
+1. **Modelo probabilístico**:
+   El modelo probabilístico del MSE se denota como:
+   $$
+   f(\Theta) \sim \mathcal{GP}(\mu(\Theta), k(\Theta, \Theta'))
+   $$
+   Donde:
+   - $\mu(\Theta)$: Media predictiva del MSE.
+   - $k(\Theta, \Theta')$: Función de covarianza que mide la similitud entre puntos $\Theta$ y $\Theta'$.
+
+2. **Función de adquisición**:
+   La función de adquisición (Expected Improvement, EI) guía la selección del próximo conjunto de hiperparámetros a evaluar:
+   $$
+   \text{EI}(\Theta) = \mathbb{E}\left[ \max(0, f(\Theta^*) - f(\Theta)) \right]
+   $$
+   Donde:
+   - $f(\Theta^*)$ es el mejor valor conocido de la función objetivo.
+   - $f(\Theta)$ es el valor predicho por el modelo probabilístico.
+
+3. **Actualización iterativa**:
+   En cada iteración:
+   - Se evalúa $\text{EI}(\Theta)$ en el espacio de búsqueda.
+   - Se selecciona el conjunto de hiperparámetros $\Theta_{\text{next}}$ que maximiza $\text{EI}(\Theta)$.
+   - Se entrena el modelo con $\Theta_{\text{next}}$ y se actualiza el modelo probabilístico.
+
 
 ```{python, echo=FALSE}
 from sklearn import datasets
@@ -575,7 +671,7 @@ baseline = cross_val_score(xgb, X, Y, scoring='neg_mean_squared_error').mean()
 
 #### Ajuste de hiperparámetros con búsqueda aleatoria
 
-Para el ajuste de hiperparámetros con búsqueda aleatoria, utilizamos `RandomSearchCV` de scikit-learn y calculamos una puntuación de validación cruzada para cada punto seleccionado aleatoriamente en el espacio de hiperparámetros. Los resultados se analizarán a continuación:
+Para el ajuste de hiperparámetros con búsqueda aleatoria, utilizamos `RandomSearchCV` de scikit-learn y calculamos una puntuación de validación cruzada para cada punto seleccionado aleatoriamente en el espacio de hiperparámetros.
 
 ```{python, echo=FALSE}
 # Hyperparameters to tune and their ranges
@@ -770,6 +866,38 @@ df_best_results = pd.DataFrame(best_results).round(3)
 df_best_results
 ```
 
+**5. Evaluación y resultados**
+
+1. **Base de comparación (Baseline):**
+   - Se calcula el MSE promedio usando validación cruzada con los hiperparámetros por defecto del modelo.
+
+2. **Random Search:**
+   - Evalúa $n = 25$ configuraciones aleatorias dentro del espacio de búsqueda.
+   - Calcula el MSE en cada configuración.
+
+3. **Optimización Bayesiana:**
+   - Se realiza una búsqueda iterativa en $n = 20$ configuraciones.
+   - Utiliza funciones de adquisición para priorizar configuraciones prometedoras.
+
+4. **Resultados**:
+   - La optimización bayesiana encuentra configuraciones con menor MSE en menos iteraciones que Random Search y mejora significativamente el baseline.
+
+---
+
+1. **Convergencia de la función objetivo**:
+   - Representa cómo el MSE decrece a medida que se optimizan los hiperparámetros.
+   - Incluye comparaciones entre baseline, Random Search y Optimización Bayesiana.
+
+2. **Resultados finales**:
+   - Tabla con los mejores hiperparámetros encontrados por cada técnica.
+   - Comparación de valores de MSE alcanzados.
+
+---
+
+Este modelaje matemático y proceso de optimización garantiza que el problema de diabetes sea abordado de manera eficiente, maximizando el desempeño del modelo predictivo en validación cruzada.
+
+
+
 ### California Housing Prices
 
 En este ejemplo, aplicaremos la optimización bayesiana a un problema de regresión de precios de vivienda en California. El conjunto de datos se puede descargar de [Kaggle](https://www.kaggle.com/camnugent/california-housing-prices) y contiene información sobre la población, los ingresos medios, los precios de las viviendas, etc. El objetivo, es predecir los precios de las viviendas en función de las características proporcionadas.
@@ -783,39 +911,43 @@ from sklearn.model_selection import RandomizedSearchCV, cross_val_score
 from scipy.stats import uniform
 
 # Cargar el dataset de California Housing Prices
-np.random.seed(1234)
-data_h = fetch_california_housing()
-X, Y = data_h.data, data_h.target  # X: características, Y: precios de vivienda
-n_features_h = X.shape[1]
+np.random.seed(0)
+data_ch = fetch_california_housing()
+X, Y = data_ch.data, data_ch.target  # X: características, Y: precios de vivienda
+n_features_ch = X.shape[1]
 
 # Instantiate an XGBRegressor with default hyperparameter settings
-gbr_h = GradientBoostingRegressor(n_estimators = 50, random_state = 0)
+gbr_ch = GradientBoostingRegressor(n_estimators = 50, random_state = 0)
 
 # and compute a baseline to beat with hyperparameter optimization 
-baseline_h = -cross_val_score(gbr_h, X, Y, scoring='neg_mean_squared_error').mean()
+baseline_ch = -cross_val_score(gbr_ch, X, Y, scoring='neg_mean_squared_error').mean()
 ```
 
 #### Ajuste de hiperparámetros con búsqueda aleatoria
 
+Para el ajuste de hiperparámetros con búsqueda aleatoria, utilizamos `RandomSearchCV` de scikit-learn y calculamos una puntuación de validación cruzada para cada punto seleccionado aleatoriamente en el espacio de hiperparámetros. El modelo utilizado fue `GradientBoostingRegressor` de scikit-learn.
+
 ```{python, echo=FALSE}
 from scipy.stats import loguniform
 
-np.random.seed(1234)
+np.random.seed(0)
 # Hyperparameters to tune and their ranges
-param_dist_h = {'max_depth': range(1,5),
+param_dist_ch = {'max_depth': range(1,5),
               'learning_rate': loguniform(10**-5,10**0),
-              'max_features': range(1, n_features_h),
+              'max_features': range(1, n_features_ch),
               'min_samples_split': range(2 ,1000),
               'min_samples_leaf':range(1 ,1000)}
 
-rs_h = RandomizedSearchCV(gbr_h, param_distributions = param_dist_h, 
+rs_ch = RandomizedSearchCV(gbr_ch, param_distributions = param_dist_ch, 
                         scoring='neg_mean_squared_error', n_iter=25)
 
 # Run random search for 25 iterations
-rs_h.fit(X, Y);
+rs_ch.fit(X, Y);
 ```
 
 #### Ajuste de hiperparámetros con optimización bayesiana
+
+Para ajustar los hiperparámetros con optimización bayesiana, implementamos una función objetivo `cv_score` que toma los hiperparámetros como entrada y devuelve una puntuación de validación cruzada. El modelo, empleado fue `GradientBoostingRegressor` de scikit-learn.
 
 ```{python, echo=FALSE}
 import numpy as np
@@ -824,10 +956,11 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import cross_val_score
 from GPyOpt.methods import BayesianOptimization
 
+np.random.seed(0)
 # Definir el espacio de búsqueda para la optimización bayesiana
-bds_h = [
+bds_chbo = [
     {'name': 'learning_rate', 'type': 'continuous', 'domain': (10**-5, 10**0)},
-    {'name': 'max_features', 'type': 'discrete', 'domain': list(range(1, n_features_h + 1))},
+    {'name': 'max_features', 'type': 'discrete', 'domain': list(range(1, n_features_ch + 1))},
     {'name': 'max_depth', 'type': 'discrete', 'domain': list(range(1, 6))},
     {'name': 'min_samples_split', 'type': 'discrete', 'domain': list(range(2, 1001))},
     {'name': 'min_samples_leaf', 'type': 'discrete', 'domain': list(range(1, 1001))}
@@ -852,9 +985,9 @@ def cv_score(parameters):
     return score
 
 # Configurar el optimizador bayesiano
-optimizer_h = BayesianOptimization(
+optimizer_chbo = BayesianOptimization(
     f=cv_score, 
-    domain=bds_h,
+    domain=bds_chbo,
     model_type='GP',
     acquisition_type='EI',
     acquisition_jitter=0.05,
@@ -863,36 +996,44 @@ optimizer_h = BayesianOptimization(
 )
 
 # Ejecutar la optimización (20 iteraciones)
-optimizer_h.run_optimization(max_iter=20)
+optimizer_chbo.run_optimization(max_iter=20)
 
 # Mostrar los mejores resultados
-print("Mejores hiperparámetros encontrados:")
-print(f"Learning rate: {optimizer_h.X[np.argmin(optimizer_h.Y), 0]:.5f}")
-print(f"Max features: {int(optimizer_h.X[np.argmin(optimizer_h.Y), 1])}")
-print(f"Max depth: {int(optimizer_h.X[np.argmin(optimizer_h.Y), 2])}")
-print(f"Min samples split: {int(optimizer_h.X[np.argmin(optimizer_h.Y), 3])}")
-print(f"Min samples leaf: {int(optimizer_h.X[np.argmin(optimizer_h.Y), 4])}")
-print(f"Mejor MSE (negativo): {np.min(optimizer_h.Y):.4f}")
+#print("Mejores hiperparámetros encontrados:")
+#print(f"Learning rate: {optimizer_chbo.X[np.argmin(optimizer_chbo.Y), 0]:.5f}")
+#print(f"Max features: {int(optimizer_chbo.X[np.argmin(optimizer_chbo.Y), 1])}")
+#print(f"Max depth: {int(optimizer_chbo.X[np.argmin(optimizer_chbo.Y), 2])}")
+#print(f"Min samples split: {int(optimizer_chbo.X[np.argmin(optimizer_chbo.Y), 3])}")
+#print(f"Min samples leaf: {int(optimizer_chbo.X[np.argmin(optimizer_chbo.Y), 4])}")
+#print(f"Mejor MSE (negativo): {np.min(optimizer_chbo.Y):.4f}")
 ```
 
 ```{python, echo=FALSE}
 # Comparar resultados de Random Search y Bayesian Optimization
-y_rs_h = -np.maximum.accumulate(rs_h.cv_results_['mean_test_score'])
-y_bo_h = -np.maximum.accumulate(-optimizer_h.Y).ravel()
+y_rs_ch = -np.maximum.accumulate(rs_ch.cv_results_['mean_test_score'])
+y_bo_chbo = -np.maximum.accumulate(-optimizer_chbo.Y).ravel()
 
-print(f'Baseline neg. MSE = {baseline_h:.5f}')
-print(f'Random search neg. MSE = {y_rs_h[-1]:.5f}')
-print(f'Bayesian optimization GPyOpt neg. MSE = {y_bo_h[-1]:.5f}')
+print(f'Baseline neg. MSE = {baseline_ch:.5f}')
+print(f'Random search neg. MSE = {y_rs_ch[-1]:.5f}')
+print(f'Bayesian optimization GPyOpt neg. MSE = {y_bo_chbo[-1]:.5f}')
+```
 
-# Graficar
-plt.plot(y_rs_h, 'ro-', label='Random search')
-plt.plot(y_bo_h, 'bo-', label='Bayesian optimization GPyOpt')
+```{python, echo=FALSE}
+# Graficar los resultados
+plt.figure(figsize=(6, 4))
+if y_rs_ch is not None:
+    plt.plot(y_rs_ch, 'ro-', label='Random search')
+plt.plot(y_bo_chbo, 'bo-', label='Bayesian optimization GPyOpt')
 plt.xlabel('Iteration')
 plt.ylabel('Neg. MSE')
-plt.title('Value of the best sampled CV score')
+plt.title('Value of the Best Sampled CV Score')
 plt.legend()
 plt.show()
+
 ```
+
+
+
 ```{python, echo=FALSE}
 from sklearn.datasets import fetch_california_housing
 from sklearn.ensemble import GradientBoostingRegressor
@@ -905,7 +1046,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import uniform
 
 # Cargar el dataset de California Housing Prices
-np.random.seed(1234)
+np.random.seed(0)
 data_h = fetch_california_housing()
 X, Y = data_h.data, data_h.target
 n_features_hs = X.shape[1]
@@ -915,7 +1056,7 @@ gbr_hs = GradientBoostingRegressor(n_estimators=50, random_state=0)
 
 # Evaluar el modelo base utilizando validación cruzada
 baseline_hs = -cross_val_score(gbr_hs, X, Y, scoring='neg_mean_squared_error', cv=5).mean()
-print(f'Baseline neg. MSE = {baseline_hs:.5f}')
+#print(f'Baseline neg. MSE = {baseline_hs:.5f}')
 
 # Definir el espacio de búsqueda para skopt
 search_space_hs = [
@@ -953,9 +1094,9 @@ result_hs = gp_minimize(
 
 # Resultados de skopt
 best_params_hs = {dim.name: val for dim, val in zip(search_space_hs, result_hs.x)}
-print("Best parameters from Bayesian optimization (skopt):")
-print(best_params_hs)
-print(f"Best neg. MSE from skopt: {result_hs.fun:.5f}")
+#print("Best parameters from Bayesian optimization (skopt):")
+#print(best_params_hs)
+#print(f"Best neg. MSE from skopt: {result_hs.fun:.5f}")
 
 # Comparar con RandomizedSearchCV
 # Definir hiperparámetros y sus distribuciones para Random Search
@@ -967,34 +1108,13 @@ param_dist_hs = {
     "min_samples_leaf": range(1, 1001)
 }
 
-# Ejecutar RandomizedSearchCV
-rs_hs = RandomizedSearchCV(
-    estimator=gbr_hs,
-    param_distributions=param_dist_hs,
-    scoring='neg_mean_squared_error',
-    n_iter=25,
-    cv=5,
-    random_state=0,
-    n_jobs=-1
-)
-rs_hs.fit(X, Y)
-
-# Resultados de Random Search
-best_rs_params_hs = rs_hs.best_params_
-best_rs_score_hs = -rs_hs.best_score_
-
-print("\nBest parameters from RandomizedSearchCV:")
-print(best_rs_params_hs)
-print(f"Best neg. MSE from RandomizedSearchCV: {best_rs_score_hs:.5f}")
-
 # Graficar los resultados
 # Máximos acumulados de cada iteración
-y_rs_hs = -np.maximum.accumulate(rs_hs.cv_results_['mean_test_score'])
 y_bo_hs = -np.maximum.accumulate(-np.array(result_hs.func_vals))
 
 # Plotear la comparación
 plt.figure(figsize=(6, 4))
-plt.plot(y_rs_hs, 'ro-', label='Random search')
+plt.plot(y_rs_ch, 'ro-', label='Random search')
 plt.plot(y_bo_hs, 'bo-', label='Bayesian optimization (skopt)')
 plt.xlabel('Iteration')
 plt.ylabel('Neg. MSE')
@@ -1003,6 +1123,32 @@ plt.legend()
 plt.show()
 ```
 
+```{python, echo=FALSE}
+import pandas as pd
 
+#y_rs_ch = -np.maximum.accumulate(rs_ch.cv_results_['mean_test_score'])
 
+# Comparar los resultados de Random Search y Bayesian Optimization
+best_results_ho = {
+    "Method": [
+        "Baseline", 
+        "Random Search", 
+        "Bayesian Optimization (skopt)", 
+        "Bayesian Optimization (GPyOpt)"
+    ],
+    "Neg. MSE": [
+        baseline_hs,
+        y_rs_ch[-1] if y_rs_ch[-1] is not None else None,
+        result_hs.fun,
+        np.min(optimizer_chbo.Y)
+    ]
+}
+
+# Convertir a DataFrame
+df_best_resch = pd.DataFrame(best_results_ho).round(5)
+df_best_resch
+```
+
+# Fuentes
+- [#] Bradley Efron, Trevor Hastie, Iain Johnstone and Robert Tibshirani (2004) “Least Angle Regression,” Annals of Statistics (with discussion), 407-499. (https://web.stanford.edu/~hastie/Papers/LARS/LeastAngle_2002.pdf)
 
