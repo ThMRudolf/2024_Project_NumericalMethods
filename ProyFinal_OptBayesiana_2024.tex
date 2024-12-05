@@ -219,6 +219,8 @@ significativamente el rendimiento y la generalización de los modelos.
 Existen diversos enfoques descritos, desde métodos manuales hasta
 algoritmos automáticos basados en optimización global.
 
+\newpage
+
 \textbf{Limitaciones de Enfoques Tradicionales}
 
 \begin{enumerate}
@@ -398,6 +400,8 @@ Un GP se define por su función media \(m(x)\) y su función de covarianza
 f(x) \sim GP(m(x), k(x, x'))
 \]
 
+\newpage
+
 \begin{itemize}
 \tightlist
 \item
@@ -445,6 +449,8 @@ altos). Este equilibrio ayuda a reducir el número de muestras necesarias
 y mejora el rendimiento, incluso cuando la función tiene múltiples
 máximos locales. Ejemplos:
 
+\newpage
+
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
@@ -456,10 +462,14 @@ La función PI, busca puntos donde el valor de \(f(x)\) sea mayor al
 valor óptimo actual \(f(x^+)\). La probabilidad de mejora se expresa
 como: \[
 PI(x) = P(f(x) \geq f(x^+)) = \Phi\left(\frac{\mu(x) - f(x^+)}{\sigma(x)}\right),
-\] donde \(\Phi(\cdot)\) es la función de distribución acumulativa de la
-normal estándar. Una versión extendida de PI introduce un parámetro
-\(\epsilon\) para garantizar que el nuevo punto muestreado supere al
-óptimo actual por al menos \(\epsilon\): \[
+\] donde
+
+\(\Phi(\cdot)\) es la función de distribución acumulativa de la normal
+estándar.
+
+Una versión extendida de PI introduce un parámetro \(\epsilon\) para
+garantizar que el nuevo punto muestreado supere al óptimo actual por al
+menos \(\epsilon\): \[
 PI(x) = \Phi\left(\frac{\mu(x) - f(x^+) - \epsilon}{\sigma(x)}\right).
 \]
 
@@ -471,13 +481,14 @@ PI(x) = \Phi\left(\frac{\mu(x) - f(x^+) - \epsilon}{\sigma(x)}\right).
   \textbf{Mejora Esperada (EI)}
 \end{enumerate}
 
-La función EI, calcula la expectativa del grado de mejora que puede
-lograrse al explorar un punto cerca del óptimo actual. La mejora
+La función \emph{EI}, calcula la expectativa del grado de mejora que
+puede lograrse al explorar un punto cerca del óptimo actual. La mejora
 esperada se define como: \[
 I(x) = \max\{0, f_{t+1}(x) - f(x^+)\}.
-\] Maximizamos la EI respecto al valor óptimo actual \(f(x^+)\): \[
+\] Maximizamos la \emph{EI} respecto al valor óptimo actual \(f(x^+)\):
+\[
 x = \underset{x}{\text{arg max }} E[I(x)].
-\] La expresión para EI es: \[
+\] La expresión para \emph{EI} es: \[
 E(I) = \sigma(x) \left[ Z \Phi(Z) + \phi(Z) \right],
 \] donde
 
@@ -698,15 +709,17 @@ baseline \\
 \href{https://web.stanford.edu/~hastie/Papers/LARS/LeastAngle_2002.pdf}{Diabetes
 Study}
 
-\textbf{1. Definición del problema} El objetivo, es predecir la
-progresión de la enfermedad un año después del estudio, basándose en
-múltiples características explicativas proporcionadas en el conjunto de
-datos, utilizando un \texttt{XGBRegressor} con optimización bayesiana
-para la búsqueda de hiperparámetros. En esta sección demostraremos cómo
-optimizar los hiperparámetros de un \texttt{XGBRegressor} con GPyOpt y
-skopt y cómo se compara el rendimiento de la optimización bayesiana
-\texttt{BayesianOptimization} con la búsqueda aleatoria
-\texttt{RandomSearch}.
+\textbf{Definición del problema}
+
+El objetivo, es predecir la progresión de la enfermedad un año después
+del estudio, basándose en múltiples características explicativas
+proporcionadas en el conjunto de datos, utilizando un
+\texttt{XGBRegressor} con optimización bayesiana para la búsqueda de
+hiperparámetros. En esta sección demostraremos cómo optimizar los
+hiperparámetros de un \texttt{XGBRegressor} con GPyOpt y skopt y cómo se
+compara el rendimiento de la optimización bayesiana
+(\texttt{BayesianOptimization}) con la búsqueda aleatoria
+(\texttt{RandomSearch}).
 
 Matemáticamente, esto se modela como:
 
@@ -714,19 +727,28 @@ Matemáticamente, esto se modela como:
 Y = f(X; \Theta) + \epsilon
 \]
 
-Donde: - \(Y \in \mathbb{R}\) representa la variable objetivo (medida de
-progreso de la enfermedad). - \(X \in \mathbb{R}^{n \times d}\) es la
-matriz de entrada con \(n\) muestras y \(d\) características. -
-\(\Theta\) representa los hiperparámetros del modelo que afectan su
-capacidad de generalización. - \(\epsilon\) es un término de error
-(ruido) que modela incertidumbre o variabilidad no explicada por
-\(f(X; \Theta)\).
+Donde:
+
+\begin{itemize}
+\item
+  \(Y \in \mathbb{R}\) representa la variable objetivo (medida de
+  progreso de la enfermedad).
+\item
+  \(X \in \mathbb{R}^{n \times d}\) es la matriz de entrada con \(n\)
+  muestras y \(d\) características.
+\item
+  \(\Theta\) representa los hiperparámetros del modelo que afectan su
+  capacidad de generalización.
+\item
+  \(\epsilon\) es un término de error (ruido) que modela incertidumbre o
+  variabilidad no explicada por \(f(X; \Theta)\).
+\end{itemize}
 
 El modelo objetivo \(f(X; \Theta)\) es un \texttt{XGBRegressor} (modelo
 de boosting basado en árboles) que tiene múltiples hiperparámetros a
 optimizar.
 
-\textbf{2. Función objetivo para la optimización}
+\textbf{Función objetivo para la optimización}
 
 El problema de ajuste de hiperparámetros se puede expresar como un
 problema de minimización, donde se busca el conjunto de hiperparámetros
@@ -737,29 +759,61 @@ cruzada:
 \Theta^* = \underset{\Theta}{\text{argmin}} \, \frac{1}{k} \sum_{i=1}^{k} \left( \frac{1}{n_i} \sum_{j=1}^{n_i} \left( y_{ij} - \hat{y}_{ij}(\Theta) \right)^2 \right)
 \]
 
-Donde: - \(k\) es el número de pliegues en la validación cruzada. -
-\(n_i\) es el número de muestras en el pliegue \(i\). - \(y_{ij}\) es el
-valor real de la muestra \(j\) en el pliegue \(i\). -
-\(\hat{y}_{ij}(\Theta)\) es la predicción realizada por el modelo con
-hiperparámetros \(\Theta\).
+Donde:
 
-\textbf{3. Hiperparámetros optimizados}
+\begin{itemize}
+\item
+  \(k\) es el número de pliegues en la validación cruzada.
+\item
+  \(n_i\) es el número de muestras en el pliegue \(i\).
+\item
+  \(y_{ij}\) es el valor real de la muestra \(j\) en el pliegue \(i\).
+\item
+  \(\hat{y}_{ij}(\Theta)\) es la predicción realizada por el modelo con
+  hiperparámetros \(\Theta\).
+\end{itemize}
 
-Los hiperparámetros ajustados (\(\Theta\)) incluyen: 1. \textbf{Tasa de
-aprendizaje (\(\eta\))}: Controla la contribución de cada árbol en el
-modelo final. - Rango: \([0.01, 1.0]\) 2. \textbf{Profundidad máxima de
-los árboles (\(d\))}: Controla la complejidad de los árboles. - Rango:
-\([1, 50]\) 3. \textbf{Número de estimadores (\(n_{\text{trees}}\))}:
-Número total de árboles en el modelo. - Rango: \([1, 300]\) 4.
-\textbf{Peso mínimo de las hojas (\(w_{\text{min}}\))}: Peso mínimo
-requerido para dividir un nodo. - Rango: \([1, 10]\) 5.
-\textbf{Parámetro \(\gamma\)}: Penalización por complejidad en la
-división de nodos. - Rango: \([0, 5]\)
+\textbf{Hiperparámetros optimizados}
+
+Los hiperparámetros ajustados (\(\Theta\)) incluyen:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.4667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1667}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Hiperparámetro
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Descripción
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Rango
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Tasa de aprendizaje (\(\eta\)) & Controla la contribución de cada árbol
+en el modelo final. & \([0, 1]\) \\
+-------------- & ----------- & ----- \\
+Profundidad máxima de los árboles (\(d\)) & Controla la complejidad de
+los árboles. & \([1, 50]\) \\
+-------------- & ----------- & ----- \\
+Número de estimadores (\(n_{\text{trees}}\)) & Número total de árboles
+en el modelo. & \([1, 300]\) \\
+-------------- & ----------- & ----- \\
+Peso mínimo de las hojas (\(w_{\text{min}}\)) & Peso mínimo requerido
+para dividir un nodo. & \([1, 10]\) \\
+-------------- & ----------- & ----- \\
+Parámetro \(\gamma\) & Penalización por complejidad en la división de
+nodos. & \([0, 5]\) \\
+-------------- & ----------- & ----- \\
+\end{longtable}
 
 El espacio de búsqueda para los hiperparámetros es definido
 explícitamente en la optimización bayesiana.
 
-\textbf{4. Enfoque de optimización}
+\textbf{Enfoque de optimización}
 
 Se utiliza la optimización bayesiana para encontrar \(\Theta^*\). Este
 enfoque construye un modelo probabilístico (Proceso Gaussiano) para
@@ -769,15 +823,16 @@ del espacio de hiperparámetros.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
-\tightlist
 \item
-  \textbf{Modelo probabilístico}: El modelo probabilístico del MSE se
-  denota como: \[
+  \textbf{Modelo probabilístico}:
+
+  El modelo probabilístico del MSE se denota como: \[
   f(\Theta) \sim \mathcal{GP}(\mu(\Theta), k(\Theta, \Theta'))
-  \] Donde:
+  \]
+
+  Donde:
 
   \begin{itemize}
-  \tightlist
   \item
     \(\mu(\Theta)\): Media predictiva del MSE.
   \item
@@ -785,24 +840,29 @@ del espacio de hiperparámetros.
     entre puntos \(\Theta\) y \(\Theta'\).
   \end{itemize}
 \item
-  \textbf{Función de adquisición}: La función de adquisición (Expected
-  Improvement, EI) guía la selección del próximo conjunto de
-  hiperparámetros a evaluar: \[
+  \textbf{Función de adquisición}:
+
+  La función de adquisición (Expected Improvement, EI) guía la selección
+  del próximo conjunto de hiperparámetros a evaluar:
+
+  \[
   \text{EI}(\Theta) = \mathbb{E}\left[ \max(0, f(\Theta^*) - f(\Theta)) \right]
-  \] Donde:
+  \]
+
+  Donde:
 
   \begin{itemize}
-  \tightlist
   \item
     \(f(\Theta^*)\) es el mejor valor conocido de la función objetivo.
   \item
     \(f(\Theta)\) es el valor predicho por el modelo probabilístico.
   \end{itemize}
 \item
-  \textbf{Actualización iterativa}: En cada iteración:
+  \textbf{Actualización iterativa}:
+
+  En cada iteración:
 
   \begin{itemize}
-  \tightlist
   \item
     Se evalúa \(\text{EI}(\Theta)\) en el espacio de búsqueda.
   \item
@@ -842,12 +902,12 @@ el caso, pero lo ignoraremos aquí.
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-0 & Learning Rate & 0.055993 \\
-1 & Gamma & 2.213313 \\
-2 & Max Depth & 2.000000 \\
-3 & N Estimators & 88.000000 \\
-4 & Min Child Weight & 3.000000 \\
-5 & Best Neg. MSE & 3196.807177 \\
+0 & Learning Rate & 0.207546 \\
+1 & Gamma & 5.000000 \\
+2 & Max Depth & 1.000000 \\
+3 & N Estimators & 87.000000 \\
+4 & Min Child Weight & 8.000000 \\
+5 & Best Neg. MSE & 3135.245000 \\
 \end{longtable}
 
 \paragraph{Resultados}\label{resultados}
@@ -862,6 +922,11 @@ ventaja de la búsqueda aleatoria es que es fácil de paralelizar. La
 paralelización de la optimización bayesiana es mucho más difícil y está
 sujeta a investigación.
 
+A continuación, se muestra un gráfico que compara la convergencia de la
+búsqueda aleatoria y la optimización bayesiana utilizando dos librerías
+(GPyOpt y skopt). La optimización bayesiana converge más rápidamente a
+un óptimo que la búsqueda aleatoria.
+
 \includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-16-output-1.pdf}
 
 \includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-17-output-1.pdf}
@@ -874,10 +939,14 @@ sujeta a investigación.
 \bottomrule\noalign{}
 \endlastfoot
 0 & Baseline & 4000.175 \\
-1 & Random Search & -3381.370 \\
-2 & Bayesian Optimization (skopt) & -3196.807 \\
-3 & Bayesian Optimization (GPyOpt) & -3145.947 \\
+1 & Random Search & 3207.823 \\
+2 & Bayesian Optimization (skopt) & 3135.245 \\
+3 & Bayesian Optimization (GPyOpt) & 3148.438 \\
 \end{longtable}
+
+Este modelaje matemático y proceso de optimización garantiza que el
+problema de diabetes sea abordado de manera eficiente, maximizando el
+desempeño del modelo predictivo en validación cruzada.
 
 \subsubsection{California Housing
 Prices}\label{california-housing-prices}
