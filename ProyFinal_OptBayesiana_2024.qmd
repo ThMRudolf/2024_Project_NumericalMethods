@@ -105,6 +105,11 @@ En este proyecto, exploramos la aplicación de la optimización bayesiana para l
 
 La importancia de un ajuste adecuado de hiperparámetros, ha sido ampliamente reconocida en la literatura científica, ya que puede mejorar significativamente el rendimiento y la generalización de los modelos. Existen diversos enfoques descritos, desde métodos manuales hasta algoritmos automáticos basados en optimización global.
 
+```{=latex}
+\newpage
+```
+
+
 **Limitaciones de Enfoques Tradicionales**
 
 1. **Búsqueda en cuadrícula (*Grid Search*):**
@@ -176,6 +181,10 @@ Un GP se define por su función media $m(x)$ y su función de covarianza $k(x, x
 $$
 f(x) \sim GP(m(x), k(x, x'))
 $$
+```{=latex}
+\newpage
+```
+
 
 - **Función de Covarianza**
 
@@ -199,28 +208,36 @@ La función de adquisición o función de utilidad $u(x)$, determina el próximo
 Al explorar el área de muestreo, es necesario considerar tanto la exploración (muestreo en áreas de alta incertidumbre), como la explotación (muestreo en áreas con valores altos). Este equilibrio ayuda a reducir el número de muestras necesarias y mejora el rendimiento, incluso cuando la función tiene múltiples máximos locales.
 Ejemplos:
 
+```{=latex}
+\newpage
+```
+
 1. **Probabilidad de Mejora (PI)**
 
 La función PI, busca puntos donde el valor de $f(x)$ sea mayor al valor óptimo actual $f(x^+)$. La probabilidad de mejora se expresa como:
 $$
 PI(x) = P(f(x) \geq f(x^+)) = \Phi\left(\frac{\mu(x) - f(x^+)}{\sigma(x)}\right),
 $$
-donde $\Phi(\cdot)$ es la función de distribución acumulativa de la normal estándar. Una versión extendida de PI introduce un parámetro $\epsilon$ para garantizar que el nuevo punto muestreado supere al óptimo actual por al menos $\epsilon$:
+donde 
+
+$\Phi(\cdot)$ es la función de distribución acumulativa de la normal estándar. 
+
+Una versión extendida de PI introduce un parámetro $\epsilon$ para garantizar que el nuevo punto muestreado supere al óptimo actual por al menos $\epsilon$:
 $$
 PI(x) = \Phi\left(\frac{\mu(x) - f(x^+) - \epsilon}{\sigma(x)}\right).
 $$
 
 2. **Mejora Esperada (EI)**
 
-La función EI, calcula la expectativa del grado de mejora que puede lograrse al explorar un punto cerca del óptimo actual. La mejora esperada se define como:
+La función *EI*, calcula la expectativa del grado de mejora que puede lograrse al explorar un punto cerca del óptimo actual. La mejora esperada se define como:
 $$
 I(x) = \max\{0, f_{t+1}(x) - f(x^+)\}.
 $$
-Maximizamos la EI respecto al valor óptimo actual $f(x^+)$:
+Maximizamos la *EI* respecto al valor óptimo actual $f(x^+)$:
 $$
 x = \underset{x}{\text{arg max }} E[I(x)].
 $$
-La expresión para EI es:
+La expresión para *EI* es:
 $$
 E(I) = \sigma(x) \left[ Z \Phi(Z) + \phi(Z) \right],
 $$
@@ -229,6 +246,7 @@ donde
 $Z = \frac{\mu(x) - f(x^+)}{\sigma(x)}$, $\Phi(\cdot)$ es la función acumulativa y 
 
 $\phi(\cdot)$ es la densidad de probabilidad de la normal estándar.
+
 
 3. **Límite Superior de Confianza (GP-UCB)**
 
@@ -380,7 +398,7 @@ from scipy.optimize import minimize
 from scipy.stats import norm
 
 # Proceso gaussiano con kernel Matérn como modelo sustituto
-np.random.seed(1234)
+np.random.seed(42)
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ConstantKernel, Matern
 from bayesian_optimization_util import plot_approximation, plot_acquisition
@@ -482,7 +500,7 @@ plot_convergence(np.array(r.x_iters), -r.func_vals)
 [GPyOpt](http://sheffieldml.github.io/GPyOpt/) es una biblioteca de optimización bayesiana basada en [GPy](https://sheffieldml.github.io/GPy/). El nivel de abstracción de la API, es comparable al de scikit-optimize. 
 La API `BayesianOptimization` proporciona un parámetro `maximize` para configurar si la función objetivo se maximizará o minimizará (predeterminado). En la versión 1.2.1, esto parece ignorarse al proporcionar muestras iniciales, por lo que tenemos que negar sus valores objetivo manualmente en el siguiente ejemplo. Además, los métodos integrados `plot_acquisition` y `plot_convergence` muestran el resultado de la minimización en cualquier caso. Nuevamente, los resultados obtenidos aquí difieren ligeramente de los resultados anteriores debido al comportamiento de optimización no determinista y a las diferentes muestras ruidosas extraídas de la función objetivo.
 
-```{python, echo=FALSE}
+```{python}
 import numpy as np
 import matplotlib.pyplot as plt
 import GPy
@@ -496,54 +514,30 @@ noise = 0.2
 def f(X, noise=noise):
     return -np.sin(3*X) - X**2 + 0.7*X + noise * np.random.randn(*X.shape)
 
-# Datos iniciales
 X_init = np.array([[-0.9], [1.1]])
 Y_init = f(X_init)
 
 # Configuración del kernel y optimización bayesiana
 kernel = GPy.kern.Matern52(input_dim=1, variance=1.0, lengthscale=1.0)
-bds = [{'name': 'X', 'type': 'continuous', 'domain': bounds.flatten().tolist()}]
+#bds = [{'name': 'X', 'type': 'continuous', 'domain': bounds.flatten().tolist()}]
+bds = [{'name': 'X', 'type': 'continuous', 'domain': bounds.ravel()}]
 
-optimizer = BayesianOptimization(
-    f=f,  # Función objetivo
-    domain=bds,
-    model_type='GP',
-    kernel=kernel,
-    acquisition_type='EI',  # Expected Improvement
-    acquisition_jitter=0.01,
-    X=X_init,
-    Y=Y_init,
-    noise_var=noise**2,
-    exact_feval=False,
-    normalize_Y=False,
-    maximize=True
-)
+optimizer = BayesianOptimization(f=f, 
+                                 domain=bds,
+                                 model_type='GP',
+                                 kernel=kernel,
+                                 acquisition_type ='EI',
+                                 acquisition_jitter = 0.01,
+                                 X=X_init,
+                                 Y=-Y_init,
+                                 noise_var = noise**2,
+                                 exact_feval=False,
+                                 normalize_Y=False,
+                                 maximize=True)
 
 # Ejecutar optimización
 optimizer.run_optimization(max_iter=10)
-
-# Generar datos para la gráfica de adquisición
-X = np.linspace(bounds[0, 0], bounds[0, 1], 100).reshape(-1, 1)
-Y = optimizer.acquisition.acquisition_function(X)
-X_next = optimizer.suggested_sample[0, 0]
-
-# Obtener predicciones del modelo
-mu, sigma = optimizer.model.predict(X)
-
-# Crear la gráfica
-plt.figure(figsize=(8, 6))
-plt.plot(X, mu, 'k-', lw=1, label='Mean prediction')
-plt.fill_between(X.flatten(),
-                 mu.flatten() - 1.96 * sigma.flatten(),
-                 mu.flatten() + 1.96 * sigma.flatten(),
-                 alpha=0.1, color='blue', label='95% Confidence Interval')
-plt.plot(optimizer.X, optimizer.Y, 'ro', label='Observations')
-ax2 = plt.gca().twinx()
-ax2.plot(X, Y, 'r-', lw=1, label='Acquisition (arbitrary units)')
-ax2.axvline(x=X_next, ls='--', c='k', lw=1, label='Next sampling location')
-plt.legend(loc='upper left')
-plt.title('Acquisition Function with Observations and GP')
-plt.show()
+optimizer.plot_acquisition()
 ```
 
 ```{python, echo=FALSE}
@@ -576,9 +570,11 @@ El conjunto de datos, contiene 10 variables basales como son: edad, sexo, índic
 ![Estudio de diabetes](imgs/data_diabetes.png)
 Fuente [Diabetes Study](https://web.stanford.edu/~hastie/Papers/LARS/LeastAngle_2002.pdf)
 
-**1. Definición del problema**
+
+**Definición del problema**
+
 El objetivo, es predecir la progresión de la enfermedad un año después del estudio, basándose en múltiples características explicativas proporcionadas en el conjunto de datos, utilizando un `XGBRegressor` con optimización bayesiana para la búsqueda de hiperparámetros.
-En esta sección demostraremos cómo optimizar los hiperparámetros de un `XGBRegressor` con GPyOpt y skopt y cómo se compara el rendimiento de la optimización bayesiana `BayesianOptimization` con la búsqueda aleatoria `RandomSearch`.
+En esta sección demostraremos cómo optimizar los hiperparámetros de un `XGBRegressor` con GPyOpt y skopt y cómo se compara el rendimiento de la optimización bayesiana (`BayesianOptimization`) con la búsqueda aleatoria (`RandomSearch`).
 
 Matemáticamente, esto se modela como:
 
@@ -587,14 +583,18 @@ Y = f(X; \Theta) + \epsilon
 $$
 
 Donde:
+
 - $Y \in \mathbb{R}$ representa la variable objetivo (medida de progreso de la enfermedad).
+
 - $X \in \mathbb{R}^{n \times d}$ es la matriz de entrada con $n$ muestras y $d$ características.
+
 - $\Theta$ representa los hiperparámetros del modelo que afectan su capacidad de generalización.
+
 - $\epsilon$ es un término de error (ruido) que modela incertidumbre o variabilidad no explicada por $f(X; \Theta)$.
 
 El modelo objetivo $f(X; \Theta)$ es un `XGBRegressor` (modelo de boosting basado en árboles) que tiene múltiples hiperparámetros a optimizar.
 
-**2. Función objetivo para la optimización**
+**Función objetivo para la optimización**
 
 El problema de ajuste de hiperparámetros se puede expresar como un problema de minimización, donde se busca el conjunto de hiperparámetros $\Theta^*$ que minimice el error cuadrático medio (MSE) en validación cruzada:
 
@@ -603,62 +603,84 @@ $$
 $$
 
 Donde:
+
 - $k$ es el número de pliegues en la validación cruzada.
+
 - $n_i$ es el número de muestras en el pliegue $i$.
+
 - $y_{ij}$ es el valor real de la muestra $j$ en el pliegue $i$.
+
 - $\hat{y}_{ij}(\Theta)$ es la predicción realizada por el modelo con hiperparámetros $\Theta$.
 
-**3. Hiperparámetros optimizados**
+
+**Hiperparámetros optimizados**
 
 Los hiperparámetros ajustados ($\Theta$) incluyen:
-1. **Tasa de aprendizaje ($\eta$)**: Controla la contribución de cada árbol en el modelo final.
-   - Rango: $[0.01, 1.0]$
-2. **Profundidad máxima de los árboles ($d$)**: Controla la complejidad de los árboles.
-   - Rango: $[1, 50]$
-3. **Número de estimadores ($n_{\text{trees}}$)**: Número total de árboles en el modelo.
-   - Rango: $[1, 300]$
-4. **Peso mínimo de las hojas ($w_{\text{min}}$)**: Peso mínimo requerido para dividir un nodo.
-   - Rango: $[1, 10]$
-5. **Parámetro $\gamma$**: Penalización por complejidad en la división de nodos.
-   - Rango: $[0, 5]$
+
+|Hiperparámetro|Descripción|Rango|
+|--------------|-----------|-----|
+|Tasa de aprendizaje ($\eta$)|Controla la contribución de cada árbol en el modelo final.|$[0, 1]$|
+|--------------|-----------|-----|
+|Profundidad máxima de los árboles ($d$)|Controla la complejidad de los árboles.|$[1, 50]$|
+|--------------|-----------|-----|
+|Número de estimadores ($n_{\text{trees}}$)|Número total de árboles en el modelo.|$[1, 300]$|
+|--------------|-----------|-----|
+|Peso mínimo de las hojas ($w_{\text{min}}$)|Peso mínimo requerido para dividir un nodo.|$[1, 10]$|
+|--------------|-----------|-----|
+|Parámetro $\gamma$|Penalización por complejidad en la división de nodos.|$[0, 5]$|
+|--------------|-----------|-----|
 
 El espacio de búsqueda para los hiperparámetros es definido explícitamente en la optimización bayesiana.
 
-**4. Enfoque de optimización**
+**Enfoque de optimización**
 
 Se utiliza la optimización bayesiana para encontrar $\Theta^*$. Este enfoque construye un modelo probabilístico (Proceso Gaussiano) para aproximar la relación entre los hiperparámetros $\Theta$ y la función objetivo (MSE). La técnica, guía la búsqueda hacia regiones prometedoras del espacio de hiperparámetros.
 
 1. **Modelo probabilístico**:
+
    El modelo probabilístico del MSE se denota como:
    $$
    f(\Theta) \sim \mathcal{GP}(\mu(\Theta), k(\Theta, \Theta'))
    $$
+   
    Donde:
+   
    - $\mu(\Theta)$: Media predictiva del MSE.
+   
    - $k(\Theta, \Theta')$: Función de covarianza que mide la similitud entre puntos $\Theta$ y $\Theta'$.
 
 2. **Función de adquisición**:
+
    La función de adquisición (Expected Improvement, EI) guía la selección del próximo conjunto de hiperparámetros a evaluar:
+   
    $$
    \text{EI}(\Theta) = \mathbb{E}\left[ \max(0, f(\Theta^*) - f(\Theta)) \right]
    $$
+   
    Donde:
+   
    - $f(\Theta^*)$ es el mejor valor conocido de la función objetivo.
+   
    - $f(\Theta)$ es el valor predicho por el modelo probabilístico.
 
 3. **Actualización iterativa**:
+
    En cada iteración:
    - Se evalúa $\text{EI}(\Theta)$ en el espacio de búsqueda.
+   
    - Se selecciona el conjunto de hiperparámetros $\Theta_{\text{next}}$ que maximiza $\text{EI}(\Theta)$.
+   
    - Se entrena el modelo con $\Theta_{\text{next}}$ y se actualiza el modelo probabilístico.
 
 
 ```{python, echo=FALSE}
+import numpy as np
 from sklearn import datasets
 from sklearn.model_selection import RandomizedSearchCV, cross_val_score
 from scipy.stats import uniform
 from xgboost import XGBRegressor
 
+np.random.seed(0)
 # Load the diabetes dataset (for regression)
 X, Y = datasets.load_diabetes(return_X_y=True)
 
@@ -674,6 +696,8 @@ baseline = cross_val_score(xgb, X, Y, scoring='neg_mean_squared_error').mean()
 Para el ajuste de hiperparámetros con búsqueda aleatoria, utilizamos `RandomSearchCV` de scikit-learn y calculamos una puntuación de validación cruzada para cada punto seleccionado aleatoriamente en el espacio de hiperparámetros.
 
 ```{python, echo=FALSE}
+import numpy as np
+np.random.seed(0)
 # Hyperparameters to tune and their ranges
 param_dist = {"learning_rate": uniform(0, 1),
               "gamma": uniform(0, 5),
@@ -696,7 +720,7 @@ Para ajustar los hiperparámetros con optimización bayesiana, implementamos una
 import numpy as np
 from GPyOpt.methods import BayesianOptimization
 
-np.random.seed(1234)
+np.random.seed(0)
 bds = [{'name': 'learning_rate', 'type': 'continuous', 'domain': (0, 1)},
         {'name': 'gamma', 'type': 'continuous', 'domain': (0, 5)},
         {'name': 'max_depth', 'type': 'discrete', 'domain': (1, 50)},
@@ -737,6 +761,7 @@ from skopt.utils import use_named_args
 from sklearn.model_selection import cross_val_score
 from xgboost import XGBRegressor
 
+np.random.seed(0)
 # Define los dominios de búsqueda (bounds)
 search_space = [
     Real(0, 1, name='learning_rate'),               # learning_rate
@@ -766,7 +791,7 @@ result = gp_minimize(
     acq_func='EI',                 # Expected Improvement
     n_calls=20,                    # Número de iteraciones
     n_initial_points=5,            # Puntos iniciales aleatorios
-    random_state=1234                # Reproducibilidad
+    random_state=0                # Reproducibilidad
 )
 
 # Resultados de la optimización
@@ -790,6 +815,9 @@ df_results_t
 #### Resultados
 
 En promedio, la optimización bayesiana encuentra un óptimo mejor en una menor cantidad de pasos que la búsqueda aleatoria y supera la línea base en casi todas las ejecuciones. Esta tendencia se vuelve aún más prominente en espacios de búsqueda de dimensiones superiores. Aquí, el espacio de búsqueda es de cinco dimensiones, lo cual es bastante bajo para obtener un beneficio sustancial de la optimización bayesiana. Una ventaja de la búsqueda aleatoria es que es fácil de paralelizar. La paralelización de la optimización bayesiana es mucho más difícil y está sujeta a investigación.
+
+A continuación, se muestra un gráfico que compara la convergencia de la búsqueda aleatoria y la optimización bayesiana utilizando dos librerías (GPyOpt y skopt). La optimización bayesiana converge más rápidamente a un óptimo que la búsqueda aleatoria.
+
 
 ```{python, echo=FALSE}
 # Máximos acumulados para Random Search
@@ -855,9 +883,9 @@ best_results = {
     ],
     "Neg. MSE": [
         baseline,
-        y_rs[-1] if y_rs is not None else None,
-        y_bo_skopt[-1],
-        y_bo_gpyopt[-1]
+        -y_rs[-1] if y_rs is not None else None,
+        -y_bo_skopt[-1],
+        -y_bo_gpyopt[-1]
     ]
 }
 
@@ -865,34 +893,6 @@ best_results = {
 df_best_results = pd.DataFrame(best_results).round(3)
 df_best_results
 ```
-
-**5. Evaluación y resultados**
-
-1. **Base de comparación (Baseline):**
-   - Se calcula el MSE promedio usando validación cruzada con los hiperparámetros por defecto del modelo.
-
-2. **Random Search:**
-   - Evalúa $n = 25$ configuraciones aleatorias dentro del espacio de búsqueda.
-   - Calcula el MSE en cada configuración.
-
-3. **Optimización Bayesiana:**
-   - Se realiza una búsqueda iterativa en $n = 20$ configuraciones.
-   - Utiliza funciones de adquisición para priorizar configuraciones prometedoras.
-
-4. **Resultados**:
-   - La optimización bayesiana encuentra configuraciones con menor MSE en menos iteraciones que Random Search y mejora significativamente el baseline.
-
----
-
-1. **Convergencia de la función objetivo**:
-   - Representa cómo el MSE decrece a medida que se optimizan los hiperparámetros.
-   - Incluye comparaciones entre baseline, Random Search y Optimización Bayesiana.
-
-2. **Resultados finales**:
-   - Tabla con los mejores hiperparámetros encontrados por cada técnica.
-   - Comparación de valores de MSE alcanzados.
-
----
 
 Este modelaje matemático y proceso de optimización garantiza que el problema de diabetes sea abordado de manera eficiente, maximizando el desempeño del modelo predictivo en validación cruzada.
 
