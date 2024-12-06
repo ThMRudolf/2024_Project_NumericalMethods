@@ -1210,7 +1210,7 @@ plt.title("y-val category: " + str(y_val[1]))
 plt.show()
 ```
 
-**Descripción del modelo** 
+**Descripción del modelo (La función objetivo)** 
 La siguiente imagen muestra una posible estructura de una red neuronal (NN). La red tiene una capa de entrada. En el caso del conjunto MNIST, las entradas son la imagen 28 x 28. La NN no puede recibir entradas en formato de matriz. Por lo tanto, la matriz se convierte en un vector con 784 elementos (28 x 28). Todas las entradas se envían a la primera capa oculta que contiene una cantidad de neuronas. La salida de estas neuronas son las entradas de la segunda capa con una cantidad definida de neuronas. La cantidad de neuronas de ambas capas no es necesariamente igual. La última capa se denomina capa de salida y debe tener 10 neuronas, una por cada cantidad posible. Cada entrada está conectada a cada neurona de la siguiente capa. Las entradas se multiplican por un peso $w$ y la suma de todas las entradas ponderadas se calcula como la salida de la neurona.
 $$
 y_{jk} = \sum_{i=1}^N {w_i x_i}
@@ -1239,7 +1239,7 @@ Para ejecutar la optimización, es necesario implementar la creación de una est
 - *l2_reg: el regularizador del núcleo*: agrega una penalización a la función de pérdida para pesos grandes, lo que alienta al modelo a encontrar pesos más pequeños, típicamente 1e-6, 1e-2.
 - *batch_size*: el tamaño del lote es la cantidad de imágenes analizadas en una ejecución, generalmente 16, 32, 64, 128.
 
-#### Ajuste de hiperparámetros con optimización bayesiana (MNIST)
+#### Ajuste de hiperparámetros
 La función *build_model()* construye un modelo secuencial NN. Primero, se agrega la función *Flatten()* que toma la entrada de la matriz n x m y la convierte en un vector a de n*n elementos. Las siguientes dos capas son las capas ocultas y la capa de salida contiene 10 neuronas, cada una para un número. Los parámetros de entrada de la función son los parámetros de interés.
 
 ```{python, echo=FALSE}
@@ -1287,6 +1287,7 @@ def model_score(params):
 
 ```
 
+**Optimización Bayesiana (MNIST)**
 Para ejecutar el optimizador, se deben definir los parámetros de interés y su rango. En este caso se utilizan los valores típicos mencionados anteriormente. Una vez definidos los parámetros, se utiliza el método de Optimización Bayesiana de GPyOpt para ejecutar el modelo dentro de los rangos de parámetros definidos llamando a la función *model_score*. El tipo de adquisición se define como "Expected Improvement" (EI).
 
 Ahora se inicia la optimización con un número máximo de ejecuciones. En este caso, 35.
@@ -1392,6 +1393,10 @@ print(f"Batch Size (batch): {batch}")
 
 
 ```
+
+**Optimización Random Search (MNIST)**
+
+
 #### Resultados 
 
 # Fuentes
