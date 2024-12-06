@@ -1230,7 +1230,7 @@ $$
 - $\frac{∂w}{∂L}$ el gradiente de pérdida con respecto al peso $w$.\ 
 Este proceso se repite a lo largo de varias épocas hasta que la función de pérdida mejora significativamente.
 
-![image-3.png](attachment:image-3.png)
+![Comparativo de enfoques para búsqueda de hiperpárametros](imgs/NN Structure.png)
 
 Para ejecutar la optimización, es necesario implementar la creación de una estructura NN de manera que los parámetros de interés puedan variarse automáticamente. Los parámetros de interés son los siguientes:
 - *learning rate*: controla cuánto ajustar los pesos del modelo con respecto al gradiente de pérdida, típicamente 1e-5, 1e-1.
@@ -1392,6 +1392,7 @@ print(f"Batch Size (batch): {batch}")
 
 
 ```
+#### Resultados 
 
 # Fuentes
 - [#] Bradley Efron, Trevor Hastie, Iain Johnstone and Robert Tibshirani (2004) “Least Angle Regression,” Annals of Statistics (with discussion), 407-499. (https://web.stanford.edu/~hastie/Papers/LARS/LeastAngle_2002.pdf)
