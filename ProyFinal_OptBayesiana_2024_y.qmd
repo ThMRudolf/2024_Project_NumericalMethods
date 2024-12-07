@@ -1388,6 +1388,114 @@ df_best_resch
    - Para proyectos con espacios de búsqueda complejos, se recomienda utilizar optimización bayesiana, ya que su capacidad para guiar la búsqueda hacia regiones óptimas es especialmente útil en escenarios de alta dimensionalidad.
    - La búsqueda aleatoria puede ser adecuada en casos donde se busque simplicidad y facilidad de paralelización, pero con la expectativa de un rendimiento subóptimo.
 
+### Red Neuronal para MNIST
+
+En este ejemplo, el conjunto de datos MINST se utiliza para aplicar la optimización bayesiana para los hiperparámetros de una red neuronal NN.\ La biblioteca *tensorflow* se utiliza para definir la NN. *Tensorflow* contiene el conjunto de datos MNIST que contiene números escritos a mano en escala de grises del 0 al 9. Todas las imágenes están etiquetadas y, por lo tanto, se puede aplicar una estrategia de entrenamiento supervisada.\ Además, se importa la biblioteca *GPyOpt* para optimizar los hiperparámetros utilizando el *proceso gaussiano*. GPyOpt es una biblioteca de Python para la optimización bayesiana utilizando procesos gaussianos (GP). Está diseñada para ayudar a optimizar funciones costosas de evaluar, especialmente aquellas que no son convexas, ruidosas o de caja negra (donde se desconoce el mecanismo interno de la función). La biblioteca aprovecha los GP para modelar la función objetivo y proporciona métodos eficientes para explorar el espacio de búsqueda.
+
+**Definition del problema**
+La tarea de entrenar una red neuronal (NN) requiere la definición del model con diferentes hiperparametros como el learning rate o el numero de neuronas por capa. Con el método Bayesiano de opitmización se puede encontrar la mejor configuración de este modelo.
+
+**Enfoque de optimización**
+
+Se utiliza la optimización bayesiana para encontrar los mejores valores del model NN. Este enfoque construye un modelo probabilístico (Proceso Gaussiano) para aproximar la relación entre los hiperparámetros y la función objetivo (MSE). La técnica, guía la búsqueda hacia regiones prometedoras del espacio de hiperparámetros.
+
+**Posibles aplicaciones**
+Un modelo entrenado puede utilizarse para detectar escritura a mano y convertirla en escritura de imprenta estándar. El conjunto de datos debe ampliarse a letras escritas a mano y, tal vez, a caracteres especiales, pero una red neuronal como la utilizada en este proyecto debería gestionar esto fácilmente. Otra aplicación, que también contempla la ampliación de letras, es la detección de matrículas de automóviles en las rutas de tráfico para identificar vehículos que superan los límites de velocidad.
+
+
+**Cargar y preparar el conjunto de datos**
+Es necesario cargar el conjunto de datos. El conjunto de datos contiene 70 000 imágenes de números escritos a mano del 0 al 9. Cada imagen es una matriz de 28 x 28 píxeles. Cada píxel puede obtener un valor entre 0 (que corresponde al color negro) y 255 (que corresponde al color blanco). Por lo tanto, los datos de entrada se normalizan dividiéndolos por 255. La señal de salida contiene el número correspondiente del 0 al 9. El conjunto de datos se divide en 60 000 imágenes para entrenar el modelo y 10 000 imágenes para validarlo.
+
+Como la salida es una variable categórica, se aplica el método One-Shot con diez categorías o clases, cada una para cada número entre 0 y 9. Los números numéricos deben estar categóricos.
+
+
+La siguiente figura ilustra los datos: los valores X son matrices de 28 x 28 píxeles con un número escrito a mano, los valores Y correspondientes contienen el número.
+
+![Ejemplo de train data y validation data](imgs/MNIST_example.png)!
+
+**Descripción del modelo (La función objetivo)** 
+La siguiente imagen muestra una posible estructura de una red neuronal (NN). La red tiene una capa de entrada. En el caso del conjunto MNIST, las entradas son la imagen 28 x 28. La NN no puede recibir entradas en formato de matriz. Por lo tanto, la matriz se convierte en un vector con 784 elementos (28 x 28). Todas las entradas se envían a la primera capa oculta que contiene una cantidad de neuronas. La salida de estas neuronas son las entradas de la segunda capa con una cantidad definida de neuronas. La cantidad de neuronas de ambas capas no es necesariamente igual. La última capa se denomina capa de salida y debe tener 10 neuronas, una por cada cantidad posible. Cada entrada está conectada a cada neurona de la siguiente capa. Las entradas se multiplican por un peso $w$ y la suma de todas las entradas ponderadas se calcula como la salida de la neurona.
+$$
+y_{jk} = \sum_{i=1}^N {w_i x_i}
+$$
+con j el número de capa y k el número de neurona en la capa j La función de activación en cada capa oculta es Unidad Lineal Rectificada (relu) una función lineal para valores mayores o iguales a 0 y 0 para valores negativos. Durante la fase de entrenamiento, la NN se entrena para identificar la interpretación correcta de la imagen. Para ello, la red optimiza los pesos $w_{ik}$ aplicando un método llamado Backpropagation.
+### Backpropagation
+Los datos de entrada fluyen a través de la red capa por capa, aplicando pesos y sesgos, y activando funciones hasta que se genera la salida. Luego, la función de pérdida compara la salida predicha de la red con el objetivo real (por ejemplo, el error cuadrático medio para la regresión). Luego, se calcula el gradiente de la pérdida con respecto a los pesos y sesgos en la capa de salida utilizando la regla de la cadena del cálculo. Esta es la derivada de la función de pérdida con respecto a las activaciones de la última capa. Los gradientes se propagan hacia atrás desde la salida a las capas de entrada utilizando la regla de la cadena. Para cada neurona, se calcula cuánto contribuyó al error en la siguiente capa. Luego, cada peso $w$ y sesgo $b$ utilizando una regla como el Descenso de gradiente:
+$$ 
+w = w − η ⋅  \frac{∂w}{∂L} 
+
+$$
+
+$$ 
+𝑏 = 𝑏 −𝜂⋅\frac{∂𝐿}{∂𝑏} 
+$$
+- η es el learning rate
+- $\frac{∂w}{∂L}$ el gradiente de pérdida con respecto al peso $w$.\ 
+Este proceso se repite a lo largo de varias épocas hasta que la función de pérdida mejora significativamente.
+
+![Estructura de una red neuronal con dos hidden layers](imgs/NN Structure.png)
+
+Para ejecutar la optimización, es necesario implementar la creación de una estructura NN de manera que los parámetros de interés puedan variarse automáticamente. Los parámetros de interés son los siguientes:
+
+| **Hiperparámetro**       | **Valor**            | **descripción**                                                                     |
+|--------------------------|----------------------|-------------------------------------------------------------------------------------|
+| `learning rate`          | (1e-5, 1e-1)         |controla cuánto ajustar los pesos del modelo con respecto al gradiente de pérdida.   |
+| `número de unidades (neuronas) en la capa 1`    | (16, 32, 64, 128 y 256)|  indica el número de neuronas en la capa                   |
+| `número de unidades (neuronas) en la capa 1`    | (16, 32, 64, 128 y 256)|  indica el número de neuronas en la capa                   |
+| `l2_reg`                  | (1e-6, 1e-2)        | grega una penalización a la función de pérdida para pesos grandes, lo que alienta al modelo a encontrar pesos más pequeños|
+| `batch_size`              | (16, 32, 64, 128)   |el tamaño del lote es la cantidad de imágenes analizadas en una ejecución            |
+
+#### Ajuste de hiperparámetros
+La función *build_model()* construye un modelo secuencial NN. Primero, se agrega la función *Flatten()* que toma la entrada de la matriz n x m y la convierte en un vector a de n*n elementos. Las siguientes dos capas son las capas ocultas y la capa de salida contiene 10 neuronas, cada una para un número. Los parámetros de entrada de la función son los parámetros de interés.
+
+`# define the model as objective function()`
+`def build_model(learning_rate, units_layer01,units_layer02, l2_reg):`
+    `model = Sequential()`
+    `model.add(Flatten(input_shape=(28,28)))`
+    `model.add(Dense(units=units_layer01, activation='relu', kernel_regularizer=l2(l2_reg)))`
+    `model.add(Dense(units=units_layer02, activation='relu', kernel_regularizer=l2(l2_reg)))`
+    `model.add(Dense(units=10, activation='softmax'))`
+    `return model`
+
+La función *model_score()* recibe una lista con el parámetro de interés y llama a la función *build_model()*. El modelo NN se parametriza con las diferentes variaciones de los parámetros de interés, se compila y ajusta con los datos de entrenamiento y se valida con los datos de validación. El tamaño del lote también varía. Como criterio, se selecciona y almacena el error cuadrático medio (mse).\ Además, se recomienda incluir *callbacks* durante el proceso de ajuste. En este caso, se implementan *EarlyStopping* y *ModelCheckpoints*. *EarlyStopping* monitorea la métrica, en este caso el **mse** y se detiene antes si se alcanza un valor definido. Esto evita el sobreajuste. *ModelCheckpoints* almacena los mejores valores del parámetro de interés para cada época.
+
+
+
+**Optimización Bayesiana (MNIST)**
+Para ejecutar el optimizador, se deben definir los parámetros de interés y su rango. En este caso se utilizan los valores típicos mencionados anteriormente. Una vez definidos los parámetros, se utiliza el método de Optimización Bayesiana de GPyOpt para ejecutar el modelo dentro de los rangos de parámetros definidos llamando a la función *model_score*. El tipo de adquisición se define como "Expected Improvement" (EI).
+
+Ahora se inicia la optimización con un número máximo de ejecuciones. En este caso, 35.
+
+La siguiente figura muestra los resultados de **mse**. Están ordenados del peor al mejor y cada punto de valor contiene el número de ejecución para identificar los parámetros utilizados para obtener el valor.
+Se selecciona el mejor modelo y se imprimen sus características.
+
+![Resultados de Optimización Bayesiana](imgs/BayesOpt_results.png)
+| **Hiperparámetro**       | **Valor Encontrado** |
+|--------------------------|----------------------|
+| `learning_rate`          | 0.501                |
+| `shape Layer 1`          | 16                   |
+| `shape Layer 2`          | 16                   |
+| `Batch size`             | 36                   |
+| `l2_reg`                 | 0.0028               |
+| **Mejor MSE Negativo**   | **      **           |
+
+![Modelo con mejores resultados: Bayesian Optimización](imgs/BayesOpt_results_best_fitting_model.png)
+
+**Optimización Random Search (MNIST)**
+![Resultados de Random Search](imgs/RS_results.png)
+
+![Modelo con mejores resultados: Random Search](imgs/RS_results_best_fitting_model.png)
+| **Hiperparámetro**       | **Valor Encontrado** |
+|--------------------------|----------------------|
+| `learning_rate`          | 0.01                 |
+| `shape Layer 1`          | 128                  |
+| `shape Layer 2`          | 128                  |
+| `Batch size`             | 16                   |
+| `l2_reg`                 |                |
+| **Mejor MSE Negativo**   | **0.0242**           |
+
+#### Resultados 
+
 
 # Conclusiones
 
