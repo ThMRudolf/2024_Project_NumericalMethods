@@ -557,7 +557,7 @@ La siguiente gráfica muestra: - La función objetivo libre de ruido - La
 cantidad de ruido al representar gráficamente una gran cantidad de
 muestras y - Las dos muestras iniciales
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-3-output-1.pdf}
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-3-output-1.pdf}
 
 El objetivo, \textbf{es encontrar el óptimo global a la izquierda}, en
 una pequeña cantidad de pasos. El siguiente paso es implementar la
@@ -595,7 +595,7 @@ iteración, produce una fila con dos gráficos.
   máximo de la función de adquisición.
 \end{itemize}
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-6-output-1.pdf}
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-6-output-1.pdf}
 
 Se puede observar, cómo las dos muestras iniciales dirigen la búsqueda
 hacia la dirección del máximo local en el lado derecho, pero la
@@ -612,7 +612,7 @@ encontrar un máximo y si las propuestas de puntos de muestreo se
 mantienen alrededor de ese máximo, es decir, convergen a pequeñas
 diferencias entre pasos consecutivos.
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-7-output-1.pdf}
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-7-output-1.pdf}
 
 \subsection{Librerias para la Optimización
 Bayesiana}\label{librerias-para-la-optimizaciuxf3n-bayesiana}
@@ -636,9 +636,9 @@ obtenidos aquí difieren ligeramente de los resultados anteriores debido
 al comportamiento de optimización no determinista y a las diferentes
 muestras ruidosas extraídas de la función objetivo.
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-8-output-1.pdf}
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-8-output-1.pdf}
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-9-output-1.pdf}
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-9-output-1.pdf}
 
 \subsubsection{GPyOpt}\label{gpyopt}
 
@@ -658,9 +658,9 @@ ligeramente de los resultados anteriores debido al comportamiento de
 optimización no determinista y a las diferentes muestras ruidosas
 extraídas de la función objetivo.
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-10-output-1.pdf}
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-10-output-1.pdf}
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-11-output-1.pdf}
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-11-output-1.pdf}
 
 \subsection{Aplicación de Optimización Bayesiana en Aprendizaje
 Automático}\label{aplicaciuxf3n-de-optimizaciuxf3n-bayesiana-en-aprendizaje-automuxe1tico}
@@ -683,29 +683,32 @@ la enfermedad, un año después de la toma inicial.
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5789}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
-Atributo
+\textbf{Atributo}
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Descripción
+\textbf{Descripción}
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-age & age in years \\
-sex & sex \\
-bmi & body mass index \\
-bp & average blood pressure \\
-s1 tc & total serum cholesterol \\
-s2 ldl & low-density lipoproteins \\
-s3 hdl & high-density lipoproteins \\
-s4 tch & total cholesterol / HDL \\
-s5 ltg & possibly log of serum triglycerides level \\
-s6 glu & blood sugar level \\
-y & quantitative measure of disease progression one year after
-baseline \\
+\texttt{age} & Edad en años \\
+\texttt{sex} & Sexo del paciente \\
+\texttt{bmi} & Índice de masa corporal \\
+\texttt{bp} & Presión arterial media \\
+\texttt{s1\_tc} & Colesterol total en suero \\
+\texttt{s2\_ldl} & Lopoproteínas de baja densidad \\
+\texttt{s3\_hdl} & Lipoprteínas de alta densisdad \\
+\texttt{s4\_tch} & Colesterol total / HDL \\
+\texttt{vs5\_ltg} & Posibilidad log del nivel de triglicéridos en
+suero \\
+\texttt{s6\_glu} & Nivel de glucosa en sangre \\
+\texttt{y} & Medida cuantitativa de la progresión de la enfermedad, un
+año después de la toma inicial (Variable objetivo) \\
 \end{longtable}
 
-\includegraphics{imgs/data_diabetes.png} Fuente
+A continuación, se muestra un ejemplo de la base de datos:
+
+\includegraphics{imgs/data_diabetes.png} Fuente (4)
 \href{https://web.stanford.edu/~hastie/Papers/LARS/LeastAngle_2002.pdf}{Diabetes
 Study}
 
@@ -783,11 +786,11 @@ Los hiperparámetros ajustados (\(\Theta\)) incluyen:
   >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1667}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
-Hiperparámetro
+\textbf{Hiperparámetro}
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Descripción
+\textbf{Descripción}
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Rango
+\textbf{Rango}
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
@@ -795,23 +798,22 @@ Rango
 \endlastfoot
 Tasa de aprendizaje (\(\eta\)) & Controla la contribución de cada árbol
 en el modelo final. & \([0, 1]\) \\
--------------- & ----------- & ----- \\
 Profundidad máxima de los árboles (\(d\)) & Controla la complejidad de
 los árboles. & \([1, 50]\) \\
--------------- & ----------- & ----- \\
 Número de estimadores (\(n_{\text{trees}}\)) & Número total de árboles
 en el modelo. & \([1, 300]\) \\
--------------- & ----------- & ----- \\
 Peso mínimo de las hojas (\(w_{\text{min}}\)) & Peso mínimo requerido
 para dividir un nodo. & \([1, 10]\) \\
--------------- & ----------- & ----- \\
 Parámetro \(\gamma\) & Penalización por complejidad en la división de
 nodos. & \([0, 5]\) \\
--------------- & ----------- & ----- \\
 \end{longtable}
 
-El espacio de búsqueda para los hiperparámetros es definido
-explícitamente en la optimización bayesiana.
+El \textbf{espacio de búsqueda} se define como los rangos o valores
+posibles que los hiperparámetros pueden tomar durante el proceso de
+optimización. Estos valores son evaluados iterativamente por los
+algoritmos de optimización. En este caso, el espacio de búsqueda se
+configura como un diccionario de listas de valores para cada
+hiperparámetro, este fue descrito en la tabla anterior.
 
 \textbf{Enfoque de optimización}
 
@@ -895,6 +897,35 @@ tanto, establecemos el parámetro \texttt{exact\_feval} de
 del modelo y los detalles de la validación cruzada, esto podría no ser
 el caso, pero lo ignoraremos aquí.
 
+\paragraph{Resultados e
+Interpretación}\label{resultados-e-interpretaciuxf3n}
+
+En esta sección, se analizan los resultados obtenidos de la optimización
+de hiperparámetros para el modelo \texttt{GradientBoostingRegressor}. Se
+emplearon dos enfoques principales para la optimización:
+\textbf{búsqueda aleatoria} y \textbf{optimización bayesiana} (usando
+las librerías \texttt{skopt} y \texttt{GPyOpt}). Además, se comparan
+estos resultados con el rendimiento del modelo base, entrenado con
+hiperparámetros predeterminados.
+
+\textbf{Modelo Base}
+
+El modelo base fue entrenado utilizando los valores por defecto de los
+hiperparámetros. Este modelo se evaluó empleando validación cruzada y el
+error cuadrático medio negativo (MSE) se reportó como:
+
+\[
+\text{Baseline neg. MSE} = 4,000.175
+\] Este valor nos sirve como referencia para determinar si los ajustes
+de hiperparámetros mediante optimización mejoran significativamente el
+rendimiento del modelo.
+
+\textbf{Mejores Hiperparámetros Encontrados}
+
+A través de la optimización bayesiana (\texttt{skopt}), se identificaron
+los siguientes hiperparámetros como los más adecuados para minimizar el
+MSE para este problema:
+
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 & Hyperparameter & Value \\
@@ -910,26 +941,51 @@ el caso, pero lo ignoraremos aquí.
 5 & Best Neg. MSE & 3135.245000 \\
 \end{longtable}
 
-\paragraph{Resultados}\label{resultados}
-
-En promedio, la optimización bayesiana encuentra un óptimo mejor en una
-menor cantidad de pasos que la búsqueda aleatoria y supera la línea base
-en casi todas las ejecuciones. Esta tendencia se vuelve aún más
-prominente en espacios de búsqueda de dimensiones superiores. Aquí, el
-espacio de búsqueda es de cinco dimensiones, lo cual es bastante bajo
-para obtener un beneficio sustancial de la optimización bayesiana. Una
-ventaja de la búsqueda aleatoria es que es fácil de paralelizar. La
-paralelización de la optimización bayesiana es mucho más difícil y está
-sujeta a investigación.
+Con lo obtenido mediante optimización bayesiana, representa una mejora
+en comparación con el modelo base, reduciendo el error y mejorando la
+capacidad predictiva del modelo.
 
 A continuación, se muestra un gráfico que compara la convergencia de la
 búsqueda aleatoria y la optimización bayesiana utilizando dos librerías
 (GPyOpt y skopt). La optimización bayesiana converge más rápidamente a
-un óptimo que la búsqueda aleatoria.
+un óptimo en comparación con la búsqueda aleatoria.
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-16-output-1.pdf}
+\textbf{Gráficos de Convergencia}
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-17-output-1.pdf}
+A continuación, se muestra un gráfico que compara la convergencia de la
+búsqueda aleatoria y la optimización bayesiana utilizando dos librerías
+(GPyOpt y skopt). La optimización bayesiana converge más rápidamente a
+un óptimo en comparación con la búsqueda aleatoria.
+
+\textbf{Gráfico 1: Random Search vs.~Bayesian Optimization (skopt)}
+
+Este gráfico compara la evolución del MSE negativo obtenido con búsqueda
+aleatoria y optimización bayesiana (\texttt{skopt}).
+
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-17-output-1.pdf}
+
+\textbf{Interpretación:}
+
+La optimización bayesiana converge más rápidamente hacia un menor MSE en
+comparación con la búsqueda aleatoria, mostrando una mayor eficiencia en
+la exploración del espacio de hiperparámetros.
+
+\newpage
+
+\textbf{Gráfico 2: Random Search vs.~Bayesian Optimization (GPyOpt)}
+
+En este gráfico, se compara la búsqueda aleatoria con la optimización
+bayesiana implementada mediante \texttt{GPyOpt}.
+
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-18-output-1.pdf}
+
+\textbf{Interpretación:}
+
+Similar al primer gráfico, \texttt{GPyOpt} supera a la búsqueda
+aleatoria al reducir el error de manera más significativa y en menor
+número de iteraciones.
+
+\textbf{Interpretación General}
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -944,6 +1000,16 @@ un óptimo que la búsqueda aleatoria.
 3 & Bayesian Optimization (GPyOpt) & 3148.438 \\
 \end{longtable}
 
+En promedio, la optimización bayesiana encuentra un óptimo mejor en una
+menor cantidad de pasos que la búsqueda aleatoria y supera la línea base
+en casi todas las ejecuciones. Esta tendencia se vuelve aún más
+prominente en espacios de búsqueda de dimensiones superiores. Aquí, el
+espacio de búsqueda es de cinco dimensiones, lo cual es bastante bajo
+para obtener un beneficio sustancial de la optimización bayesiana. Una
+ventaja de la búsqueda aleatoria es que es fácil de paralelizar. La
+paralelización de la optimización bayesiana es mucho más difícil y está
+sujeta a investigación.
+
 Este modelaje matemático y proceso de optimización garantiza que el
 problema de diabetes sea abordado de manera eficiente, maximizando el
 desempeño del modelo predictivo en validación cruzada.
@@ -951,13 +1017,226 @@ desempeño del modelo predictivo en validación cruzada.
 \subsubsection{California Housing
 Prices}\label{california-housing-prices}
 
-En este ejemplo, aplicaremos la optimización bayesiana a un problema de
-regresión de precios de vivienda en California. El conjunto de datos se
-puede descargar de
-\href{https://www.kaggle.com/camnugent/california-housing-prices}{Kaggle}
-y contiene información sobre la población, los ingresos medios, los
-precios de las viviendas, etc. El objetivo, es predecir los precios de
-las viviendas en función de las características proporcionadas.
+En esta sección aplicaremos la optimización bayesiana a un problema de
+regresión. La regresión se realizará en un conjunto de datos de precios
+de viviendas en California, que se puede descargar de
+\href{https://www.kaggle.com/camnugent/california-housing-prices}{Kaggle}.
+El objetivo es predecir los precios de las viviendas en California
+basándonos en diversas características explicativas proporcionadas en el
+conjunto de datos. Utilizaremos un modelo
+\texttt{GradientBoostingRegressor} y aplicaremos optimización bayesiana
+para encontrar los mejores hiperparámetros. También compararemos este
+enfoque con el rendimiento obtenido mediante búsqueda aleatoria
+(\texttt{RandomSearch}).
+
+El conjunto de datos de California Housing Prices incluye información
+sobre:
+
+\begin{itemize}
+\item
+  Variables relacionadas con características de las viviendas y su
+  entorno, como población, ingresos medios, y edad promedio de las
+  viviendas.
+\item
+  La variable objetivo es el precio medio de las viviendas en un área
+  específica.
+\end{itemize}
+
+El conjunto de datos consta de las siguientes variables:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.3478}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.6522}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Variable}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Descripción}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{MedInc} & Ingresos medios de los hogares en el área. \\
+\texttt{HouseAge} & Edad promedio de las casas. \\
+\texttt{AveRooms} & Habitaciones promedio por hogar. \\
+\texttt{AveBedrms} & Dormitorios promedio por hogar. \\
+\texttt{Population} & Población en el área. \\
+\texttt{AveOccup} & Promedio de ocupantes por hogar. \\
+\texttt{Latitude} & Latitud de la ubicación. \\
+\texttt{Longitude} & Longitud de la ubicación. \\
+\texttt{Target} & Precio medio de la vivienda. (Variable objetivo) \\
+\end{longtable}
+
+\textbf{Definición del problema}
+
+El objetivo de este análisis es predecir los precios de las viviendas en
+California basándonos en diversas características explicativas
+proporcionadas en el conjunto de datos. Utilizaremos un modelo
+\texttt{GradientBoostingRegressor} y aplicaremos optimización bayesiana
+para encontrar los mejores hiperparámetros. También compararemos este
+enfoque con el rendimiento obtenido mediante búsqueda aleatoria
+(\texttt{RandomSearch}).
+
+Matemáticamente, el problema se puede modelar como:
+
+\[
+Y = f(X; \Theta) + \epsilon
+\]
+
+Donde:
+
+\begin{itemize}
+\item
+  \(Y \in \mathbb{R}\) representa el precio de la vivienda (variable
+  objetivo).
+\item
+  \(X \in \mathbb{R}^{n \times d}\) es la matriz de entrada, con \(n\)
+  muestras y \(d\) características.
+\item
+  \(\Theta\) representa los hiperparámetros del modelo que afectan su
+  capacidad de generalización.
+\item
+  \(\epsilon\) es un término de error (ruido) que modela la variabilidad
+  no explicada por \(f(X; \Theta)\).
+\end{itemize}
+
+El modelo objetivo \(f(X; \Theta)\) es un
+\texttt{GradientBoostingRegressor} que será ajustado para minimizar el
+error de predicción.
+
+\textbf{Planteamiento matemático del problema}
+
+El problema de ajuste de hiperparámetros, se puede expresar como un
+problema de minimización, donde se busca el conjunto de hiperparámetros
+\(\Theta^*\) que minimicen el error cuadrático medio (MSE) en validación
+cruzada:
+
+\[
+\Theta^* = \underset{\Theta}{\text{argmin}} \, \frac{1}{k} \sum_{i=1}^{k} \left( \frac{1}{n_i} \sum_{j=1}^{n_i} \left( y_{ij} - \hat{y}_{ij}(\Theta) \right)^2 \right)
+\]
+
+Donde:
+
+\begin{itemize}
+\item
+  \(k\) es el número de pliegues en la validación cruzada.
+\item
+  \(n_i\) es el número de muestras en el pliegue \(i\).
+\item
+  \(y_{ij}\) es el valor real de la muestra \(j\) en el pliegue \(i\).
+\item
+  \(\hat{y}_{ij}(\Theta)\) es la predicción realizada por el modelo con
+  hiperparámetros \(\Theta\).
+\end{itemize}
+
+La optimización de los hiperparámetros \(\Theta\) será realizada
+utilizando optimización bayesiana, que construye un modelo
+probabilístico basado en procesos gaussianos para dirigir la búsqueda
+hacia los valores óptimos.
+
+\textbf{Hiperparámetros optimizados}
+
+Los \textbf{hiperparámetros optimizados} son los valores que se ajustan
+para maximizar el rendimiento del modelo. Estos parámetros no se
+entrenan directamente en el modelo, sino que se establecen antes del
+entrenamiento y afectan su capacidad de generalización. En este caso,
+los hiperparámetros optimizados incluyen:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2475}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.5842}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1683}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Hiperparámetro}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Descripción}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Rango}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{learning\_rate} & Controla la contribución de cada árbol en el
+modelo. & \([10^{-5}, 1.0]\) \\
+\texttt{max\_depth} & Controla la complejidad de los árboles. &
+\([1, 5]\) \\
+\texttt{max\_features} & Número máximo de características utilizadas. &
+\([1, d]\) \\
+\texttt{min\_samples\_split} & Muestras mínimas necesarias para dividir
+un nodo. & \([2, 1000]\) \\
+\texttt{min\_samples\_leaf} & Muestras mínimas necesarias en una hoja. &
+\([1, 1000]\) \\
+\end{longtable}
+
+El \textbf{espacio de búsqueda} se define como los rangos o valores
+posibles que los hiperparámetros pueden tomar durante el proceso de
+optimización. Estos valores son evaluados iterativamente por los
+algoritmos de optimización. En este caso, el espacio de búsqueda se
+configura como se describio en la tabla anterior.
+
+\textbf{Enfoque de optimización}
+
+Se utiliza la optimización bayesiana para encontrar \(\Theta^*\). Este
+enfoque construye un modelo probabilístico (Proceso Gaussiano) para
+aproximar la relación entre los hiperparámetros \(\Theta\) y la función
+objetivo (MSE). La técnica, guía la búsqueda hacia regiones prometedoras
+del espacio de hiperparámetros.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Modelo probabilístico}:
+
+  El modelo probabilístico del MSE se denota como: \[
+  f(\Theta) \sim \mathcal{GP}(\mu(\Theta), k(\Theta, \Theta'))
+  \]
+
+  Donde:
+
+  \begin{itemize}
+  \item
+    \(\mu(\Theta)\): Media predictiva del MSE.
+  \item
+    \(k(\Theta, \Theta')\): Función de covarianza que mide la similitud
+    entre puntos \(\Theta\) y \(\Theta'\).
+  \end{itemize}
+\item
+  \textbf{Función de adquisición}:
+
+  La función de adquisición (Expected Improvement, EI) guía la selección
+  del próximo conjunto de hiperparámetros a evaluar:
+
+  \[
+  \text{EI}(\Theta) = \mathbb{E}\left[ \max(0, f(\Theta^*) - f(\Theta)) \right]
+  \]
+
+  Donde:
+
+  \begin{itemize}
+  \item
+    \(f(\Theta^*)\) es el mejor valor conocido de la función objetivo.
+  \item
+    \(f(\Theta)\) es el valor predicho por el modelo probabilístico.
+  \end{itemize}
+\item
+  \textbf{Actualización iterativa}:
+
+  En cada iteración:
+
+  \begin{itemize}
+  \item
+    Se evalúa \(\text{EI}(\Theta)\) en el espacio de búsqueda.
+  \item
+    Se selecciona el conjunto de hiperparámetros
+    \(\Theta_{\text{next}}\) que maximiza \(\text{EI}(\Theta)\).
+  \item
+    Se entrena el modelo con \(\Theta_{\text{next}}\) y se actualiza el
+    modelo probabilístico.
+  \end{itemize}
+\end{enumerate}
 
 \paragraph{Ajuste de hiperparámetros con búsqueda
 aleatoria}\label{ajuste-de-hiperparuxe1metros-con-buxfasqueda-aleatoria-1}
@@ -977,15 +1256,91 @@ hiperparámetros como entrada y devuelve una puntuación de validación
 cruzada. El modelo, empleado fue \texttt{GradientBoostingRegressor} de
 scikit-learn.
 
-\begin{verbatim}
-Baseline neg. MSE = 0.45815
-Random search neg. MSE = 0.44542
-Bayesian optimization GPyOpt neg. MSE = 0.38734
-\end{verbatim}
+\paragraph{Resultados e
+Interpretación}\label{resultados-e-interpretaciuxf3n-1}
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-23-output-1.pdf}
+En esta sección, se analizan los resultados obtenidos de la optimización
+de hiperparámetros para el modelo \texttt{GradientBoostingRegressor}. Se
+emplearon dos enfoques principales para la optimización:
+\textbf{búsqueda aleatoria} y \textbf{optimización bayesiana} (usando
+las librerías \texttt{skopt} y \texttt{GPyOpt}). Además, se comparan
+estos resultados con el rendimiento del modelo base, entrenado con
+hiperparámetros predeterminados.
 
-\includegraphics{ProyFinal_OptBayesiana_2024_files/figure-pdf/cell-24-output-1.pdf}
+\textbf{Modelo Base}
+
+El modelo base fue entrenado utilizando los valores por defecto de los
+hiperparámetros. Este modelo se evaluó empleando validación cruzada y el
+error cuadrático medio negativo (MSE) se reportó como:
+
+\[
+\text{Baseline neg. MSE} = 0.4581
+\]
+
+Este valor nos sirve como referencia para determinar si los ajustes de
+hiperparámetros mediante optimización mejoran significativamente el
+rendimiento del modelo.
+
+\textbf{Mejores Hiperparámetros Encontrados}
+
+A través de la optimización bayesiana (\texttt{skopt}), se identificaron
+los siguientes hiperparámetros como los más adecuados para minimizar el
+MSE negativo:
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule\noalign{}
+\textbf{Hiperparámetro} & \textbf{Valor Encontrado} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{learning\_rate} & 0.501 \\
+\texttt{max\_features} & 8 \\
+\texttt{max\_depth} & 5 \\
+\texttt{min\_samples\_split} & 156 \\
+\texttt{min\_samples\_leaf} & 893 \\
+\textbf{Mejor MSE Negativo} & \textbf{0.4112} \\
+\end{longtable}
+
+Esto representa una mejora en comparación con el modelo base, reduciendo
+el error y mejorando la capacidad predictiva del modelo.
+
+\newpage
+
+\textbf{Gráficos de Convergencia}
+
+A continuación, se muestra un gráfico que compara la convergencia de la
+búsqueda aleatoria y la optimización bayesiana utilizando dos librerías
+(GPyOpt y skopt). La optimización bayesiana converge más rápidamente a
+un óptimo en comparación con la búsqueda aleatoria.
+
+\textbf{Gráfico 1: Random Search vs.~Bayesian Optimization (skopt)}
+
+Este gráfico compara la evolución del MSE negativo obtenido con búsqueda
+aleatoria y optimización bayesiana (\texttt{skopt}).
+
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-24-output-1.pdf}
+
+\textbf{Interpretación:}
+
+La optimización bayesiana converge más rápidamente hacia un menor MSE
+negativo en comparación con la búsqueda aleatoria, mostrando una mayor
+eficiencia en la exploración del espacio de hiperparámetros.
+
+\newpage
+
+\textbf{Gráfico 2: Random Search vs.~Bayesian Optimization (GPyOpt)}
+
+En este gráfico, se compara la búsqueda aleatoria con la optimización
+bayesiana implementada mediante \texttt{GPyOpt}.
+
+\includegraphics{ProyFinal_OptBayesiana_2024_y_files/figure-pdf/cell-25-output-1.pdf}
+
+\textbf{Interpretación:}
+
+Similar al primer gráfico, \texttt{GPyOpt} supera a la búsqueda
+aleatoria al reducir el error de manera más significativa y en menor
+número de iteraciones.
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -1000,16 +1355,95 @@ Bayesian optimization GPyOpt neg. MSE = 0.38734
 3 & Bayesian Optimization (GPyOpt) & 0.38734 \\
 \end{longtable}
 
-\section{Fuentes}\label{fuentes}
-
-\begin{itemize}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  {[}\#{]} Bradley Efron, Trevor Hastie, Iain Johnstone and Robert
-  Tibshirani (2004) ``Least Angle Regression,'' Annals of Statistics
-  (with discussion), 407-499.
-  (https://web.stanford.edu/\textasciitilde hastie/Papers/LARS/LeastAngle\_2002.pdf)
-\end{itemize}
+  \textbf{Eficiencia de la Optimización Bayesiana:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Los métodos de optimización bayesiana (\texttt{skopt} y
+    \texttt{GPyOpt}) son claramente superiores a la búsqueda aleatoria
+    en términos de eficiencia y precisión.
+  \item
+    Estos enfoques exploran el espacio de hiperparámetros de manera más
+    informada, enfocándose en las regiones más prometedoras, lo que
+    resulta en una convergencia más rápida y en un menor error.
+  \end{itemize}
+\item
+  \textbf{Mejora Frente al Modelo Base:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Tanto la búsqueda aleatoria como la optimización bayesiana logran
+    superar el rendimiento del modelo base. Sin embargo, la optimización
+    bayesiana destaca por su capacidad de reducir el MSE negativo de
+    0.4581 a 0.4199.
+  \end{itemize}
+\end{enumerate}
+
+\newpage
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  \textbf{Recomendaciones:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Para proyectos con espacios de búsqueda complejos, se recomienda
+    utilizar optimización bayesiana, ya que su capacidad para guiar la
+    búsqueda hacia regiones óptimas es especialmente útil en escenarios
+    de alta dimensionalidad.
+  \item
+    La búsqueda aleatoria puede ser adecuada en casos donde se busque
+    simplicidad y facilidad de paralelización, pero con la expectativa
+    de un rendimiento subóptimo.
+  \end{itemize}
+\end{enumerate}
+
+\section{Conclusiones}\label{conclusiones}
+
+Los resultados obtenidos validan la importancia de ajustar los
+hiperparámetros de los modelos de aprendizaje automático. La
+optimización bayesiana demuestra ser una herramienta poderosa para
+maximizar el rendimiento del modelo, superando tanto al modelo base como
+a la búsqueda aleatoria en este experimento. Los gráficos de
+convergencia refuerzan la idea de que la optimización bayesiana no solo
+es más precisa, sino también más eficiente en términos computacionales.
+
+Este análisis subraya la relevancia de emplear métodos avanzados de
+optimización para tareas predictivas, especialmente en dominios donde
+los datos son complejos y los modelos requieren ajustes precisos para su
+mejor desempeño.
+
+\section{Fuentes}\label{fuentes}
+
+{[}1{]} Hyunghun Cho et al.: \emph{Basic Enhancement Strategies When
+Using Bayesian Optimization for Hyperparameter Tuning of Deep Neural
+Networks}, Special section on scalable deeo learning for big data,
+VOLUME 8, Digital Object Identifier 10.1109/ACCESS.2020.2981072,
+pp.~52588-52608 IEEE Access, 2020
+
+{[}2{]} James Bergstra et al: \emph{Algorithms for Hyper-Parameter
+Optimization}, NIPS'11: Proceedings of the 24th International Conference
+on Neural Information Processing Systems, pp.~2546 - 2554, 2011
+
+{[}3{]} Jia Wu et al: \emph{Hyperparameter Optimization for Machine
+Learning Models Based on Bayesian Optimization}, Journal of Electronic
+Science , VOL. 17, NO. 1,Digital Object
+Identifier:10.11989/JEST.1674-862X.80904120, pp.26 - 40, 2019,
+
+{[}4{]} Bradley Efron, Trevor Hastie, Iain Johnstone and Robert
+Tibshirani (2004) \emph{Least Angle Regression}, Annals of Statistics
+(with discussion), 407-499. Disponible en:
+https://web.stanford.edu/\textasciitilde hastie/Papers/LARS/LeastAngle\_2002.pdf
 
 
 
